@@ -2952,7 +2952,51 @@
         `;
         
         // Здесь должен быть код для отправки в Telegram
-        console.log('Отправка в Telegram:', telegramMessage);
+        // === Отправка в Telegram ===
+const botToken = '7662556056:AAEK6zeaG80LBIYS8IFXjJ5I-gRKusCnybw';
+const chatId = '7229616016';
+
+let message = `🔔 *Новый заказ на анализы!*%0A%0A`;
+message += `👤 *Имя:* ${encodeURIComponent(name)}%0A`;
+message += `📞 *Телефон:* ${encodeURIComponent(phone)}%0A`;
+message += `✉️ *Email:* ${encodeURIComponent(email)}%0A`;
+message += `📅 *Дата:* ${encodeURIComponent(date)}%0A`;
+message += `⏰ *Время:* ${encodeURIComponent(time)}%0A%0A`;
+
+let analyses = '';
+document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+    const row = checkbox.closest('tr');
+    const name = row.querySelector('.price-list-item-name').textContent;
+    const price = row.querySelector('.highlight').textContent;
+    analyses += `• ${encodeURIComponent(name)} — ${price}%0A`;
+});
+
+message += `🧪 *Анализы:*%0A${analyses || 'Не выбраны'}%0A`;
+message += `💬 *Комментарий:* ${encodeURIComponent(comment || 'Нет')}%0A`;
+message += `🕓 *Заказ оформлен:* ${new Date().toLocaleString()}`;
+
+fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown'
+    })
+})
+.then(response => {
+    if (response.ok) {
+        console.log('Сообщение в Telegram отправлено');
+    } else {
+        console.error('Ошибка отправки в Telegram');
+    }
+})
+.catch(err => {
+    console.error('Ошибка:', err);
+});
+// === Конец отправки в Telegram ===
         
         // Здесь должен быть код для отправки на email
         console.log('Отправка на email ssoalfabeta@gmail.com');
@@ -3092,3 +3136,4 @@
 </body>
 
 </html>
+
