@@ -12,78 +12,403 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; background-color: #f8f9fa; }
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .btn { display: inline-block; background: #4361ee; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
-        .btn:hover { background: #3a56d4; transform: translateY(-2px); }
-        .section-title { text-align: center; margin-bottom: 40px; font-size: 2.2rem; color: #2b2d42; }
-        .price-list { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 40px; }
-        /* Критически важное исправление - ограничение высоты прайс-листа */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            background-color: #f8f9fa; 
+            padding-top: 70px; /* Отступ для липкого меню */
+        }
+        .container { 
+            width: 100%; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+        }
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 10px 0;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2b2d42;
+            text-decoration: none;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-menu a {
+            color: #4361ee;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-menu a:hover {
+            color: #3a56d4;
+        }
+        .btn { 
+            display: inline-block; 
+            background: #4361ee; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            transition: all 0.3s; 
+        }
+        .btn:hover { 
+            background: #3a56d4; 
+            transform: translateY(-2px); 
+        }
+        .section-title { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            font-size: 2.2rem; 
+            color: #2b2d42; 
+        }
+        .price-list { 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            margin-bottom: 40px; 
+        }
+        /* Критическое исправление: ограничение высоты прайс-листа */
         .price-list-container {
             max-height: 500px;
             overflow-y: auto;
             border-radius: 0 0 12px 12px;
         }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #4361ee; color: white; padding: 16px; text-align: left; }
-        td { padding: 16px; border-bottom: 1px solid #eee; }
-        tr:last-child td { border-bottom: none; }
-        .category-header { background: #f1f5ff; font-weight: 600; padding: 12px 16px; text-align: left; }
-        .checkbox { cursor: pointer; font-size: 1.2rem; }
-        .highlight { font-weight: 600; color: #4361ee; }
-        .price-list-loading, .price-list-error, .price-list-empty { text-align: center; padding: 30px; color: #6c757d; }
-        .order-summary { background: white; border-radius: 12px; padding: 20px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .order-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .order-total { display: flex; justify-content: space-between; font-weight: 700; margin-top: 15px; font-size: 1.2rem; }
-        #order-form { margin-top: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
-        .form-row { display: flex; gap: 15px; }
-        .order-confirmation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
-        .order-confirmation.active { opacity: 1; visibility: visible; }
-        .order-confirmation-content { background: white; border-radius: 12px; padding: 30px; max-width: 500px; width: 100%; text-align: center; position: relative; }
-        .confirmation-icon { font-size: 3rem; margin-bottom: 20px; }
-        .confirmation-order-number { font-weight: 600; margin: 10px 0; color: #4361ee; }
-        .confirmation-title { font-size: 1.5rem; margin: 20px 0; }
-        .confirmation-btn { background: #4361ee; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-        .notification { position: fixed; bottom: 20px; right: 20px; background: white; border-left: 4px solid #4361ee; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 15px 20px; border-radius: 6px; display: flex; gap: 10px; z-index: 1000; transform: translateX(200%); transition: transform 0.3s; }
-        .notification.show { transform: translateX(0); }
-        .notification-icon { font-size: 1.5rem; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+        th { 
+            background: #4361ee; 
+            color: white; 
+            padding: 16px; 
+            text-align: left; 
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td { 
+            padding: 16px; 
+            border-bottom: 1px solid #eee; 
+        }
+        tr:last-child td { 
+            border-bottom: none; 
+        }
+        .category-header { 
+            background: #f1f5ff; 
+            font-weight: 600; 
+            padding: 12px 16px; 
+            text-align: left; 
+        }
+        .checkbox { 
+            cursor: pointer; 
+            font-size: 1.2rem; 
+        }
+        .highlight { 
+            font-weight: 600; 
+            color: #4361ee; 
+        }
+        .price-list-loading, .price-list-error, .price-list-empty { 
+            text-align: center; 
+            padding: 30px; 
+            color: #6c757d; 
+        }
+        .order-summary { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        }
+        .order-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 0; 
+            border-bottom: 1px solid #eee; 
+        }
+        .order-total { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 700; 
+            margin-top: 15px; 
+            font-size: 1.2rem; 
+        }
+        #order-form { 
+            margin-top: 20px; 
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 500; 
+        }
+        .form-control { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 1rem; 
+        }
+        .form-row { 
+            display: flex; 
+            gap: 15px; 
+        }
+        .order-confirmation { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+            opacity: 0; 
+            visibility: hidden; 
+            transition: all 0.3s; 
+        }
+        .order-confirmation.active { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+        .order-confirmation-content { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            max-width: 500px; 
+            width: 100%; 
+            text-align: center; 
+            position: relative; 
+        }
+        .confirmation-icon { 
+            font-size: 3rem; 
+            margin-bottom: 20px; 
+        }
+        .confirmation-order-number { 
+            font-weight: 600; 
+            margin: 10px 0; 
+            color: #4361ee; 
+        }
+        .confirmation-title { 
+            font-size: 1.5rem; 
+            margin: 20px 0; 
+        }
+        .confirmation-btn { 
+            background: #4361ee; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+        }
+        .notification { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: white; 
+            border-left: 4px solid #4361ee; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+            padding: 15px 20px; 
+            border-radius: 6px; 
+            display: flex; 
+            gap: 10px; 
+            z-index: 1000; 
+            transform: translateX(200%); 
+            transition: transform 0.3s; 
+        }
+        .notification.show { 
+            transform: translateX(0); 
+        }
+        .notification-icon { 
+            font-size: 1.5rem; 
+        }
         .notification-content { }
-        .notification-title { font-weight: 600; margin-bottom: 5px; }
-        .notification.error { border-left-color: #e63946; }
-        .order-saved { position: fixed; bottom: 20px; right: 20px; background: white; border-left: 4px solid #4caf50; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 15px 20px; border-radius: 6px; display: flex; gap: 10px; z-index: 1000; transform: translateX(200%); transition: transform 0.3s; }
-        .order-saved.show { transform: translateX(0); }
-        .faq-section { background: #f8f9fa; padding: 60px 0; }
-        .faq-item { margin-bottom: 15px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .faq-question { padding: 15px 20px; background: #f1f5ff; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .faq-question.active { background: #4361ee; color: white; }
-        .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s; }
-        .faq-answer.active { padding: 20px; max-height: 500px; }
-        .contact-section { padding: 60px 0; }
-        .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .map-content { border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .illustration { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 30px; justify-content: center; }
-        .illustration-element { font-size: 2.5rem; }
-        .categories-section { padding: 60px 0; }
-        .categories-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .category-tab { padding: 10px 20px; background: #f1f5ff; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .category-tab.active { background: #4361ee; color: white; }
-        .how-it-works { padding: 60px 0; background: #f8f9fa; }
-        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px; }
-        .step { text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .step-number { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #4361ee; color: white; border-radius: 50%; font-weight: 600; margin-bottom: 15px; }
-        .step-title { font-size: 1.2rem; margin-bottom: 10px; }
-        footer { background: #2b2d42; color: white; padding: 40px 0 20px; }
-        .footer-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 30px; }
-        .footer-brand { font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; }
+        .notification-title { 
+            font-weight: 600; 
+            margin-bottom: 5px; 
+        }
+        .notification.error { 
+            border-left-color: #e63946; 
+        }
+        .order-saved { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: white; 
+            border-left: 4px solid #4caf50; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+            padding: 15px 20px; 
+            border-radius: 6px; 
+            display: flex; 
+            gap: 10px; 
+            z-index: 1000; 
+            transform: translateX(200%); 
+            transition: transform 0.3s; 
+        }
+        .order-saved.show { 
+            transform: translateX(0); 
+        }
+        .faq-section { 
+            background: #f8f9fa; 
+            padding: 60px 0; 
+        }
+        .faq-item { 
+            margin-bottom: 15px; 
+            background: white; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        .faq-question { 
+            padding: 15px 20px; 
+            background: #f1f5ff; 
+            font-weight: 500; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .faq-question.active { 
+            background: #4361ee; 
+            color: white; 
+        }
+        .faq-answer { 
+            padding: 0 20px; 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: all 0.3s; 
+        }
+        .faq-answer.active { 
+            padding: 20px; 
+            max-height: 500px; 
+        }
+        .contact-section { 
+            padding: 60px 0; 
+        }
+        .contact-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; 
+        }
+        .map-content { 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        }
+        .illustration { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            margin-top: 30px; 
+            justify-content: center; 
+        }
+        .illustration-element { 
+            font-size: 2.5rem; 
+        }
+        .categories-section { 
+            padding: 60px 0; 
+        }
+        .categories-tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; 
+        }
+        .category-tab { 
+            padding: 10px 20px; 
+            background: #f1f5ff; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+        }
+        .category-tab.active { 
+            background: #4361ee; 
+            color: white; 
+        }
+        .how-it-works { 
+            padding: 60px 0; 
+            background: #f8f9fa; 
+        }
+        .steps { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 30px; 
+            margin-top: 40px; 
+        }
+        .step { 
+            text-align: center; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        }
+        .step-number { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 40px; 
+            height: 40px; 
+            background: #4361ee; 
+            color: white; 
+            border-radius: 50%; 
+            font-weight: 600; 
+            margin-bottom: 15px; 
+        }
+        .step-title { 
+            font-size: 1.2rem; 
+            margin-bottom: 10px; 
+        }
+        footer { 
+            background: #2b2d42; 
+            color: white; 
+            padding: 40px 0 20px; 
+        }
+        .footer-inner { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 30px; 
+            margin-bottom: 30px; 
+        }
+        .footer-brand { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 15px; 
+        }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container" style="padding: 20px 0;">
-            <h1 style="text-align: center; color: #2b2d42;">БыстроТочно.рф</h1>
+    <!-- Sticky Header -->
+    <header class="sticky-header">
+        <div class="container header-container">
+            <a href="#" class="logo">БыстроТочно.рф</a>
+            <nav class="nav-menu">
+                <a href="#price-list">Прайс-лист</a>
+                <a href="#faq">FAQ</a>
+                <a href="#contacts">Контакты</a>
+            </nav>
         </div>
     </header>
 
@@ -119,7 +444,6 @@
 
         <section class="price-list-section">
             <div class="container">
-                <!-- Критическое исправление: добавлена обертка для ограничения высоты -->
                 <div class="price-list">
                     <table>
                         <thead>
@@ -131,13 +455,6 @@
                                 <th style="width: 120px;">Срок выполнения</th>
                             </tr>
                         </thead>
-                        <tbody id="order-list-body">
-                            <tr>
-                                <td colspan="5" class="price-list-loading">
-                                    <div>Загрузка данных из Excel-файла...</div>
-                                </td>
-                            </tr>
-                        </tbody>
                     </table>
                 </div>
                 <div class="price-list-container" id="price-list-container">
@@ -288,7 +605,7 @@
             </div>
         </section>
 
-        <section class="contact-section">
+        <section class="contact-section" id="contacts">
             <div class="container">
                 <h2 class="section-title">Контакты</h2>
                 <div class="contact-grid">
@@ -297,7 +614,7 @@
                         <p style="margin-bottom: 10px;">Телефон: +7 (495) 123-45-67</p>
                         <p style="margin-bottom: 10px;">Email: info@bystrotchno.ru</p>
                         <p style="margin-bottom: 10px;">Время работы: Пн-Сб с 8:00 до 20:00</p>
-                        <p style="margin-bottom: 10px;">Наш адрес: Москва, ул. Ленина, 15</p>
+                        <p style="margin-bottom: 10px;">Наш адрес: Москва, ул. Новочеремушкинская, 16</p>
                     </div>
                     <div class="map-content">
                         <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A4ba2ebbac43ab3a48d8bf349c5f75cd489044e6765280bc5440457e5869da030&amp;width=100%25&amp;height=450&amp;lang=ru_RU&amp;scroll=true"></script>
@@ -326,7 +643,7 @@
                     <h4 style="margin-bottom: 15px; color: white;">Контакты</h4>
                     <p style="margin-bottom: 8px; color: #ddd;">+7 (495) 123-45-67</p>
                     <p style="margin-bottom: 8px; color: #ddd;">info@bystrotchno.ru</p>
-                    <p style="margin-bottom: 8px; color: #ddd;">Москва, ул. Ленина, 15</p>
+                    <p style="margin-bottom: 8px; color: #ddd;">Москва, ул. Новочеремушкинская, 16</p>
                 </div>
             </div>
             <div style="text-align: center; padding-top: 20px; color: #aaa; border-top: 1px solid #444; margin-top: 20px;">
@@ -408,7 +725,12 @@
                 'комплексные обследования': 'blood',
                 'общеклинические исследования': 'blood',
                 'патологические исследования': 'blood',
-                'молекулярная диагностика (эли-тесты)': 'blood'
+                'молекулярная диагностика (эли-тесты)': 'blood',
+                'пищевые аллергены': 'allergy',
+                'аллергены домашних животных': 'allergy',
+                'аллергены пыльцы': 'allergy',
+                'аллергены грибов': 'allergy',
+                'аллергены клещей': 'allergy'
             };
             
             // Критическое исправление: правильное отображение названий категорий
@@ -593,7 +915,9 @@
                         {id: 12, name: "ПЦР-тест на COVID-19", category: "антигены", price: 799, turnaround: "24 часа"},
                         {id: 13, name: "ПЦР-тест на грипп", category: "антигены", price: 999, turnaround: "24 часа"},
                         {id: 14, name: "ПЦР-тест на ВПЧ", category: "антигены", price: 1299, turnaround: "72 часа"},
-                        {id: 15, name: "Консультация терапевта", category: "консультации", price: 899, turnaround: "15 минут"}
+                        {id: 15, name: "Консультация терапевта", category: "консультации", price: 899, turnaround: "15 минут"},
+                        {id: 16, name: "Сыр Пармезан", category: "аллергология", price: 660, turnaround: "24-48 часов"},
+                        {id: 17, name: "Риск сердечно-сосудистых заболеваний", category: "кровь", price: 2500, turnaround: "48 часов"}
                     ];
                     
                     priceListData = testPriceList;
@@ -724,7 +1048,7 @@
                                 showCategory = true;
                             } else if (category === 'howto' && categoryName.includes('консультации')) {
                                 showCategory = true;
-                            } else if (category === 'allergy' && categoryName.includes('аллергология')) {
+                            } else if (category === 'allergy' && (categoryName.includes('аллергология') || categoryName.includes('аллергены'))) {
                                 showCategory = true;
                             } else if (category === 'tox' && categoryName.includes('токсикология')) {
                                 showCategory = true;
@@ -744,48 +1068,47 @@
                 });
             });
             
-            // Обработчик сохранения заказа
-            document.getElementById('save-order').addEventListener('click', saveOrderToLocalStorage);
-            
             // Критическое исправление: работающий обработчик отправки заказа
-            document.getElementById('submit-order').addEventListener('click', function() {
-                const name = document.getElementById('order-name').value;
-                const phone = document.getElementById('order-phone').value;
-                const email = document.getElementById('order-email').value;
-                const date = document.getElementById('order-date').value;
-                const time = document.getElementById('order-time').value;
-                const comment = document.getElementById('order-comment').value;
-                
-                // Проверка обязательных полей
-                if (!name || !phone || !email || !date || !time) {
-                    showNotification('Ошибка', 'Пожалуйста, заполните все обязательные поля', 'error');
-                    return;
-                }
-                
-                // Собираем выбранные анализы
-                const selectedItems = [];
-                document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
-                    const itemId = checkbox.getAttribute('data-id');
-                    const row = checkbox.closest('tr');
-                    const name = row.querySelector('.price-list-item-name').textContent;
-                    const price = row.querySelector('.highlight').textContent;
-                    selectedItems.push(`${name} (${price})`);
-                });
-                
-                if (selectedItems.length === 0) {
-                    showNotification('Ошибка', 'Выберите хотя бы один анализ', 'error');
-                    return;
-                }
-                
-                // Генерируем уникальный номер заказа
-                const orderNumber = `BT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-                
-                // Сохраняем номер заказа в форму
-                document.getElementById('form-order-number').value = orderNumber;
-                document.getElementById('form-selected-tests').value = selectedItems.join('\n');
-                
-                // Формируем сообщение для Telegram
-                const telegramMessage = `📋 Новый заказ на анализы! [${orderNumber}]
+            const submitOrderBtn = document.getElementById('submit-order');
+            if (submitOrderBtn) {
+                submitOrderBtn.addEventListener('click', function() {
+                    const name = document.getElementById('order-name')?.value || '';
+                    const phone = document.getElementById('order-phone')?.value || '';
+                    const email = document.getElementById('order-email')?.value || '';
+                    const date = document.getElementById('order-date')?.value || '';
+                    const time = document.getElementById('order-time')?.value || '';
+                    const comment = document.getElementById('order-comment')?.value || '';
+                    
+                    // Проверка обязательных полей
+                    if (!name || !phone || !email || !date || !time) {
+                        showNotification('Ошибка', 'Пожалуйста, заполните все обязательные поля', 'error');
+                        return;
+                    }
+                    
+                    // Собираем выбранные анализы
+                    const selectedItems = [];
+                    document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+                        const itemId = checkbox.getAttribute('data-id');
+                        const row = checkbox.closest('tr');
+                        const name = row.querySelector('.price-list-item-name')?.textContent || '';
+                        const price = row.querySelector('.highlight')?.textContent || '0 ₽';
+                        selectedItems.push(`${name} (${price})`);
+                    });
+                    
+                    if (selectedItems.length === 0) {
+                        showNotification('Ошибка', 'Выберите хотя бы один анализ', 'error');
+                        return;
+                    }
+                    
+                    // Генерируем уникальный номер заказа
+                    const orderNumber = `BT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+                    
+                    // Сохраняем номер заказа в форму
+                    document.getElementById('form-order-number').value = orderNumber;
+                    document.getElementById('form-selected-tests').value = selectedItems.join('\n');
+                    
+                    // Формируем сообщение для Telegram
+                    const telegramMessage = `📋 Новый заказ на анализы! [${orderNumber}]
 👤 Имя: ${name}
 📱 Телефон: ${phone}
 ✉️ Email: ${email}
@@ -795,53 +1118,60 @@
 ${selectedItems.join('\n')}
 💬 Комментарий: ${comment || 'Нет комментария'}
 ⏰ Время заказа: ${new Date().toLocaleString()}`;
-                
-                // Отправляем сообщение в Telegram
-                sendToTelegram(telegramMessage);
-                
-                // Критическое исправление: отправка формы через AJAX с правильной обработкой
-                const formData = new FormData(document.getElementById('order-form'));
-                const formObject = {};
-                
-                formData.forEach((value, key) => {
-                    formObject[key] = value;
-                });
-                
-                fetch('https://formsubmit.co/info@docspecmed.ru', {
-                    method: 'POST',
-                    body: JSON.stringify(formObject),
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    mode: 'no-cors'
-                }).then(() => {
-                    // Показываем подтверждение
-                    document.querySelector('.confirmation-order-number').textContent = `Номер вашего заказа: ${orderNumber}`;
-                    document.getElementById('order-confirmation').classList.add('active');
                     
-                    // Сохраняем заказ в localStorage
-                    saveOrderToLocalStorage();
-                }).catch(error => {
-                    console.error('Ошибка отправки формы:', error);
-                    showNotification('Ошибка', 'Не удалось отправить заказ. Попробуйте позже.', 'error');
+                    // Отправляем сообщение в Telegram
+                    sendToTelegram(telegramMessage);
                     
-                    // Дополнительная отправка через стандартный метод на случай, если AJAX не сработал
-                    document.getElementById('order-form').submit();
+                    // Критическое исправление: отправка формы через AJAX с правильной обработкой
+                    const formData = new FormData(document.getElementById('order-form'));
+                    const formObject = {};
+                    
+                    formData.forEach((value, key) => {
+                        formObject[key] = value;
+                    });
+                    
+                    fetch('https://formsubmit.co/info@docspecmed.ru', {
+                        method: 'POST',
+                        body: JSON.stringify(formObject),
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        mode: 'no-cors'
+                    })
+                    .then(response => {
+                        // Показываем подтверждение
+                        document.querySelector('.confirmation-order-number').textContent = `Номер вашего заказа: ${orderNumber}`;
+                        document.getElementById('order-confirmation').classList.add('active');
+                        
+                        // Сохраняем заказ в localStorage
+                        saveOrderToLocalStorage();
+                    })
+                    .catch(error => {
+                        console.error('Ошибка отправки формы:', error);
+                        showNotification('Ошибка', 'Не удалось отправить заказ. Попробуйте позже.', 'error');
+                        
+                        // Дополнительная отправка через стандартный метод на случай, если AJAX не сработал
+                        try {
+                            document.getElementById('order-form').submit();
+                        } catch (e) {
+                            console.error('Ошибка отправки формы через submit:', e);
+                        }
+                    });
                 });
-            });
+            }
             
             // Обработчик закрытия подтверждения
             document.getElementById('close-confirmation').addEventListener('click', function() {
                 document.getElementById('order-confirmation').classList.remove('active');
                 
                 // Сбрасываем форму
-                document.getElementById('order-name').value = '';
-                document.getElementById('order-phone').value = '';
-                document.getElementById('order-email').value = '';
-                document.getElementById('order-comment').value = '';
-                document.getElementById('order-date').value = '';
-                document.getElementById('order-time').value = '';
+                document.getElementById('order-name')?.value = '';
+                document.getElementById('order-phone')?.value = '';
+                document.getElementById('order-email')?.value = '';
+                document.getElementById('order-comment')?.value = '';
+                document.getElementById('order-date')?.value = '';
+                document.getElementById('order-time')?.value = '';
                 
                 // Снимаем выделение с выбранных анализов
                 document.querySelectorAll('.checkbox').forEach(checkbox => {
@@ -865,7 +1195,7 @@ ${selectedItems.join('\n')}
             
             // Устанавливаем минимальную дату для выбора
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('order-date').setAttribute('min', today);
+            document.getElementById('order-date')?.setAttribute('min', today);
         });
     </script>
 </body>
