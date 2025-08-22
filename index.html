@@ -2919,40 +2919,19 @@
           return;
         }
         
-        // Собираем выбранные анализы
-        const selectedItems = [];
-        document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
-          const itemId = checkbox.getAttribute('data-id');
-          const row = checkbox.closest('tr');
-          const name = row.querySelector('.price-list-item-name').textContent;
-          const price = row.querySelector('.highlight').textContent;
-          
-          selectedItems.push(`${name} (${price})`);
-        });
-        
-        // Генерируем уникальный номер заказа
-        const orderNumber = `BT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-        
-        // Формируем сообщение для Telegram
-        const telegramMessage = `
-          📋 Новый заказ на анализы! [${orderNumber}]
-          
-          👤 Имя: ${name}
-          📱 Телефон: ${phone}
-          ✉️ Email: ${email}
-          📅 Дата: ${date}
-          ⏰ Время: ${time}
-          
-          🧪 Выбранные анализы:
-          ${selectedItems.join('\n')}
-          
-          💬 Комментарий: ${comment || 'Нет комментария'}
-          
-          ⏰ Время заказа: ${new Date().toLocaleString()}
-        `;
-        
-        // Здесь должен быть код для отправки в Telegram
-        // === Отправка в Telegram ===
+       // Собираем выбранные анализы
+const selectedItems = [];
+document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+    const row = checkbox.closest('tr');
+    const name = row.querySelector('.price-list-item-name').textContent;
+    const price = row.querySelector('.highlight').textContent;
+    selectedItems.push(`• ${name} — ${price}`);
+});
+
+// Генерируем уникальный номер заказа
+const orderNumber = `BT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+
+// Формируем сообщение для Telegram
 const botToken = '7662556056:AAEK6zeaG80LBIYS8IFXjJ5I-gRKusCnybw';
 const chatId = '7229616016';
 
@@ -2973,14 +2952,31 @@ document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
 
 message += `🧪 *Анализы:*%0A${analyses || 'Не выбраны'}%0A`;
 message += `💬 *Комментарий:* ${encodeURIComponent(comment || 'Нет')}%0A`;
-message += `🕓 *Заказ оформлен:* ${new Date().toLocaleString()}`;
+message += `🕓 *Заказ оформлен:* ${new Date().toLocaleString()}%0A`;
+message += `🔢 *Номер заказа:* ${orderNumber}`;
 
+// Отправляем запрос в Telegram
 fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
     },
     body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown'
+    })
+})
+.then(response => {
+    if (response.ok) {
+        console.log('✅ Заказ отправлен в Telegram');
+    } else {
+        console.error('❌ Ошибка отправки в Telegram');
+    }
+})
+.catch(err => {
+    console.error('⚠️ Ошибка сети:', err);
+});
         chat_id: chatId,
         text: message,
         parse_mode: 'Markdown'
@@ -3136,4 +3132,5 @@ fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
 </body>
 
 </html>
+
 
