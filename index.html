@@ -2822,7 +2822,7 @@
       // Загружаем прайс-лист при загрузке страницы
       loadPriceListFromExcel();
       
-      // Обработчик поиска
+      //  поиска
       document.getElementById('order-search').addEventListener('input', function() {
         const minPrice = parseInt(document.getElementById('min-price').value);
         const maxPrice = parseInt(document.getElementById('max-price').value);
@@ -2830,7 +2830,7 @@
         renderPriceList(filteredList);
       });
       
-      // Обработчик фильтра по цене
+      //  фильтра по цене
       document.getElementById('min-price').addEventListener('change', function() {
         let value = parseInt(this.value);
         const maxPrice = parseInt(document.getElementById('max-price').value);
@@ -2869,7 +2869,7 @@
         renderPriceList(filteredList);
       });
       
-      // Обработчик переключения категорий
+      //  переключения категорий
       document.querySelectorAll('.category-tab').forEach(tab => {
         tab.addEventListener('click', function() {
           // Удаляем active класс со всех табов
@@ -2901,17 +2901,89 @@
         });
       });
       
-      // Обработчик сохранения заказа
+      //  сохранения заказа
       document.getElementById('save-order').addEventListener('click', saveOrderToLocalStorage);
       
       // Обработчик отправки заказа
-      document.getElementById('submit-order').addEventListener('click', function() {
-        const name = document.getElementById('order-name').value;
-        const phone = document.getElementById('order-phone').value;
-        const email = document.getElementById('order-email').value;
-        const date = document.getElementById('order-date').value;
-        const time = document.getElementById('order-time').value;
-        const comment = document.getElementById('order-comment').value;
+document.getElementById('submit-order').addEventListener('click', function() {
+    const name = document.getElementById('order-name').value;
+    const phone = document.getElementById('order-phone').value;
+    const email = document.getElementById('order-email').value;
+    const date = document.getElementById('order-date').value;
+    const time = document.getElementById('order-time').value;
+    const comment = document.getElementById('order-comment').value;
+
+    // Проверка обязательных полей
+    if (!name || !phone || !email || !date || !time) {
+        showNotification('Ошибка', 'Пожалуйста, заполните все обязательные поля', 'error');
+        return;
+    }
+
+    // Собираем выбранные анализы
+    const selectedItems = [];
+    document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const name = row.querySelector('.price-list-item-name').textContent;
+        const price = row.querySelector('.highlight').textContent;
+        selectedItems.push(`• ${name} — ${price}`);
+    });
+
+    // Генерируем уникальный номер заказа
+    const orderNumber = `BT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    // Данные для Telegram
+    const botToken = '7662556056:AAEK6zeaG80LBIYS8IFXjJ5I-gRKusCnybw';
+    const chatId = '7229616016';
+
+    // Формируем сообщение
+    let message = `🔔 *Новый заказ на анализы!*%0A%0A`;
+    message += `👤 *Имя:* ${encodeURIComponent(name)}%0A`;
+    message += `📞 *Телефон:* ${encodeURIComponent(phone)}%0A`;
+    message += `✉️ *Email:* ${encodeURIComponent(email)}%0A`;
+    message += `📅 *Дата:* ${encodeURIComponent(date)}%0A`;
+    message += `⏰ *Время:* ${encodeURIComponent(time)}%0A%0A`;
+
+    let analyses = '';
+    document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const name = row.querySelector('.price-list-item-name').textContent;
+        const price = row.querySelector('.highlight').textContent;
+        analyses += `• ${encodeURIComponent(name)} — ${price}%0A`;
+    });
+
+    message += `🧪 *Анализы:*%0A${analyses || 'Не выбраны'}%0A`;
+    message += `💬 *Комментарий:* ${encodeURIComponent(comment || 'Нет')}%0A`;
+    message += `🕓 *Заказ оформлен:* ${new Date().toLocaleString()}%0A`;
+    message += `🔢 *Номер заказа:* ${orderNumber}`;
+
+    // Отправляем в Telegram
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: 'Markdown'
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('✅ Заказ успешно отправлен в Telegram');
+            // Показываем подтверждение
+            document.getElementById('order-confirmation').classList.add('active');
+            document.querySelector('.confirmation-order-number').textContent = `Номер вашего заказа: ${orderNumber}`;
+        } else {
+            console.error('❌ Ошибка отправки в Telegram');
+            showNotification('Ошибка', 'Не удалось отправить заказ. Попробуйте позже.', 'error');
+        }
+    })
+    .catch(err => {
+        console.error('⚠️ Ошибка сети:', err);
+        showNotification('Ошибка', 'Нет соединения с Telegram. Проверьте интернет.', 'error');
+    });
+});
         
         // Проверка обязательных полей
         if (!name || !phone || !email || !date || !time) {
@@ -3091,3 +3163,4 @@
   </script>
 </body>
 </html>
+
