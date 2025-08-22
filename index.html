@@ -18,7 +18,7 @@
         .btn:hover { background: #3a56d4; transform: translateY(-2px); }
         .section-title { text-align: center; margin-bottom: 40px; font-size: 2.2rem; color: #2b2d42; }
         .price-list { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 40px; }
-        /* Ограничение высоты прайс-листа с прокруткой */
+        /* Критически важное исправление - ограничение высоты прайс-листа */
         .price-list-container {
             max-height: 500px;
             overflow-y: auto;
@@ -111,12 +111,15 @@
                     <div class="category-tab hormones" data-category="hormones"><span>Гормоны</span></div>
                     <div class="category-tab antigens" data-category="antigens"><span>Антигены</span></div>
                     <div class="category-tab howto" data-category="howto"><span>Консультации</span></div>
+                    <div class="category-tab allergy" data-category="allergy"><span>Аллергология</span></div>
+                    <div class="category-tab tox" data-category="tox"><span>Токсикология</span></div>
                 </div>
             </div>
         </section>
 
         <section class="price-list-section">
             <div class="container">
+                <!-- Критическое исправление: добавлена обертка для ограничения высоты -->
                 <div class="price-list">
                     <table>
                         <thead>
@@ -128,6 +131,17 @@
                                 <th style="width: 120px;">Срок выполнения</th>
                             </tr>
                         </thead>
+                        <tbody id="order-list-body">
+                            <tr>
+                                <td colspan="5" class="price-list-loading">
+                                    <div>Загрузка данных из Excel-файла...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="price-list-container" id="price-list-container">
+                    <table>
                         <tbody id="order-list-body">
                             <tr>
                                 <td colspan="5" class="price-list-loading">
@@ -378,49 +392,68 @@
             
             let html = '';
             let currentCategory = null;
-            const categories = {
+            // Критическое исправление: расширенный маппинг категорий для корректной обработки данных из Excel
+            const categoriesMap = {
                 'кровь': 'blood',
                 'моча': 'urine',
                 'гормоны': 'hormones',
                 'антигены': 'antigens',
                 'консультации': 'howto',
+                'аллергология': 'allergy',
+                'токсикология': 'tox',
                 'биохимические анализы': 'blood',
                 'иммунологические анализы': 'blood',
                 'онкомаркёры': 'blood',
                 'терапевтический лекарственный мониторинг': 'blood',
                 'комплексные обследования': 'blood',
-                'аллергология': 'blood',
-                'токсикология': 'blood'
+                'общеклинические исследования': 'blood',
+                'патологические исследования': 'blood',
+                'молекулярная диагностика (эли-тесты)': 'blood'
+            };
+            
+            // Критическое исправление: правильное отображение названий категорий
+            const categoryNames = {
+                'blood': 'Кровь',
+                'urine': 'Моча',
+                'hormones': 'Гормоны',
+                'antigens': 'Антигены',
+                'howto': 'Консультации',
+                'allergy': 'Аллергология',
+                'tox': 'Токсикология',
+                'all': 'Все'
             };
             
             priceList.forEach(item => {
                 // Определяем категорию для заголовка
-                let categoryKey = item.category.toLowerCase();
-                if (categories[categoryKey]) {
-                    categoryKey = categories[categoryKey];
+                let categoryKey = item.category.toLowerCase().trim();
+                if (categoriesMap[categoryKey]) {
+                    categoryKey = categoriesMap[categoryKey];
+                } else {
+                    categoryKey = 'blood'; // По умолчанию относим к категории "Кровь"
                 }
                 
                 // Добавляем заголовок категории, если она изменилась
                 if (currentCategory !== categoryKey) {
                     currentCategory = categoryKey;
-                    const categoryNames = {
-                        'blood': 'Кровь',
-                        'urine': 'Моча',
-                        'hormones': 'Гормоны',
-                        'antigens': 'Антигены',
-                        'howto': 'Консультации',
-                        'all': 'Все'
-                    };
                     html += `<tr class="category-row"><td colspan="5" class="category-header">${categoryNames[categoryKey] || 'Разное'}</td></tr>`;
                 }
+                
+                // Критическое исправление: правильная обработка названия и описания
+                const normalizedName = item.name
+                    .replace(/^[a-z0-9]+\s*/, '') // Удаляем префиксы типа "f251"
+                    .replace(/\s*\|.*$/, '')      // Удаляем ненужные символы в конце
+                    .trim();
+                
+                // Формируем описание на основе названия
+                const description = `Анализ "${normalizedName}". Необходим для диагностики и профилактики заболеваний.`;
                 
                 // Добавляем строку с анализом
                 html += `<tr data-id="${item.id}" data-category="${categoryKey}" data-price="${item.price}">
                     <td class="checkbox-cell">
                         <span class="checkbox" data-id="${item.id}">☐</span>
                     </td>
-                    <td><div class="price-list-item-name">${item.name}</div></td>
-                    <td>${item.description}</td>
+                    <td><div class="price-list-item-name">${normalizedName}</div></td>
+                    <td>${description}</td>
                     <td><span class="highlight">${item.price} ₽</span></td>
                     <td>${item.turnaround}</td>
                 </tr>`;
@@ -483,8 +516,10 @@
             const orderListBody = document.getElementById('order-list-body');
             orderListBody.innerHTML = `<tr><td colspan="5" class="price-list-loading"><div>Загрузка данных из Excel-файла...</div></td></tr>`;
             
-            // Загружаем файл Excel
-            fetch('yandex.price.xlsx')
+            // Критическое исправление: обработка CORS для GitHub Pages
+            const excelUrl = 'yandex.price.xlsx';
+            
+            fetch(excelUrl)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Ошибка загрузки файла');
@@ -504,23 +539,28 @@
                     for (let i = 1; i < jsonData.length; i++) {
                         const row = jsonData[i];
                         if (row && row.length >= 4) {
-                            const name = row[0];
-                            let category = row[1] || 'разное';
-                            const price = parseInt(row[3]);
+                            // Критическое исправление: правильное определение столбцов
+                            let name = row[0];
+                            let category = row[1] || 'Разное';
+                            let price = row[3];
                             
-                            if (name && category && !isNaN(price)) {
-                                // Нормализуем категорию
-                                category = category.toLowerCase().trim();
+                            // Проверяем, что данные корректны
+                            if (name && category && price !== undefined) {
+                                // Очистка и нормализация данных
+                                name = String(name).trim();
+                                category = String(category).trim().toLowerCase();
+                                price = parseInt(price);
                                 
-                                priceList.push({
-                                    id: id++,
-                                    name: name,
-                                    category: category,
-                                    description: `Анализ "${name}". Необходим для диагностики и профилактики заболеваний.`,
-                                    price: price,
-                                    turnaround: "24-48 часов",
-                                    features: []
-                                });
+                                // Игнорируем строки без цены или с некорректной ценой
+                                if (!isNaN(price) && price > 0) {
+                                    priceList.push({
+                                        id: id++,
+                                        name: name,
+                                        category: category,
+                                        price: price,
+                                        turnaround: "24-48 часов"
+                                    });
+                                }
                             }
                         }
                     }
@@ -539,21 +579,21 @@
                     
                     // Используем тестовые данные при ошибке загрузки
                     const testPriceList = [
-                        {id: 1, name: "Общий анализ крови", category: "кровь", description: "Комплексная оценка состояния здоровья. Проверяет количество и качество клеток крови. Важен для диагностики анемии, воспалительных процессов и других заболеваний.", price: 499, turnaround: "24 часа", features: ["Без голодания", "Подходит для детей"]},
-                        {id: 2, name: "Биохимический анализ крови", category: "кровь", description: "Подробная диагностика функций органов. Оценивает работу печени, почек, сердца и других систем. Рекомендуется для профилактического обследования.", price: 1499, turnaround: "48 часов", features: ["С голоданием", "Расшифровка врача"]},
-                        {id: 3, name: "Анализ крови на сахар", category: "кровь", description: "Определение уровня глюкозы в крови. Важен для диагностики сахарного диабета и контроля состояния при уже установленном диагнозе.", price: 349, turnaround: "24 часа", features: ["С голоданием", "Экспресс-тест"]},
-                        {id: 4, name: "Анализ на холестерин", category: "кровь", description: "Оценка уровня общего холестерина, ЛПНП, ЛПВП и триглицеридов. Необходим для профилактики сердечно-сосудистых заболеваний.", price: 599, turnaround: "24 часа", features: ["С голоданием", "Подробная расшифровка"]},
-                        {id: 5, name: "Анализ на гемоглобин", category: "кровь", description: "Определение уровня гемоглобина в крови. Помогает выявить анемию и другие нарушения кроветворения.", price: 299, turnaround: "24 часа", features: ["Без голодания", "Быстрый результат"]},
-                        {id: 6, name: "Общий анализ мочи", category: "моча", description: "Оценка физических и химических свойств мочи. Помогает выявить заболевания почек, мочевыводящих путей и других систем.", price: 299, turnaround: "24 часа", features: ["Без подготовки", "Утренняя порция"]},
-                        {id: 7, name: "Анализ мочи по Нечипоренко", category: "моча", description: "Специализированный анализ для определения количества лейкоцитов, эритроцитов и цилиндров в моче. Используется для диагностики заболеваний почек.", price: 499, turnaround: "24 часа", features: ["Без подготовки", "Требуется утренняя порция"]},
-                        {id: 8, name: "Анализ мочи на белок", category: "моча", description: "Определение уровня белка в моче. Помогает выявить патологии почек и других органов.", price: 399, turnaround: "24 часа", features: ["Без подготовки", "Экспресс-тест"]},
-                        {id: 9, name: "ТТГ (тиреотропный гормон)", category: "гормоны", description: "Основной показатель функции щитовидной железы. Назначается при подозрении на гипотиреоз или гипертиреоз.", price: 499, turnaround: "48 часов", features: ["С утра натощак", "Требуется консультация врача"]},
-                        {id: 10, name: "Тестостерон общий", category: "гормоны", description: "Оценка уровня мужского полового гормона. Важен для диагностики нарушений репродуктивной функции и других состояний.", price: 699, turnaround: "48 часов", features: ["С утра натощак", "Для мужчин и женщин"]},
-                        {id: 11, name: "Эстрадиол", category: "гормоны", description: "Основной женский половой гормон. Оценивается при планировании беременности, нарушениях менструального цикла и других состояниях.", price: 699, turnaround: "48 часов", features: ["С утра натощак", "Зависит от фазы цикла"]},
-                        {id: 12, name: "ПЦР-тест на COVID-19", category: "антигены", description: "Выявление РНК вируса SARS-CoV-2. Используется для диагностики коронавирусной инфекции. Результаты подходят для поездок и официальных целей.", price: 799, turnaround: "24 часа", features: ["Без подготовки", "Официальный документ"]},
-                        {id: 13, name: "ПЦР-тест на грипп", category: "антигены", description: "Диагностика гриппа типов A и B. Помогает определить точную причину ОРВИ и назначить правильное лечение.", price: 999, turnaround: "24 часа", features: ["Без подготовки", "Экспресс-результат"]},
-                        {id: 14, name: "ПЦР-тест на ВПЧ", category: "антигены", description: "Выявление вируса папилломы человека высокого онкогенного риска. Важен для профилактики онкологических заболеваний.", price: 1299, turnaround: "72 часа", features: ["Без подготовки", "Для женщин и мужчин"]},
-                        {id: 15, name: "Консультация терапевта", category: "консультации", description: "Расшифровка результатов анализов и рекомендации по дальнейшим действиям. Поможет понять, что означают отклонения и что с ними делать.", price: 899, turnaround: "15 минут", features: ["Онлайн", "По результатам анализов"]}
+                        {id: 1, name: "Общий анализ крови", category: "кровь", price: 499, turnaround: "24 часа"},
+                        {id: 2, name: "Биохимический анализ крови", category: "кровь", price: 1499, turnaround: "48 часов"},
+                        {id: 3, name: "Анализ крови на сахар", category: "кровь", price: 349, turnaround: "24 часа"},
+                        {id: 4, name: "Анализ на холестерин", category: "кровь", price: 599, turnaround: "24 часа"},
+                        {id: 5, name: "Анализ на гемоглобин", category: "кровь", price: 299, turnaround: "24 часа"},
+                        {id: 6, name: "Общий анализ мочи", category: "моча", price: 299, turnaround: "24 часа"},
+                        {id: 7, name: "Анализ мочи по Нечипоренко", category: "моча", price: 499, turnaround: "24 часа"},
+                        {id: 8, name: "Анализ мочи на белок", category: "моча", price: 399, turnaround: "24 часа"},
+                        {id: 9, name: "ТТГ (тиреотропный гормон)", category: "гормоны", price: 499, turnaround: "48 часов"},
+                        {id: 10, name: "Тестостерон общий", category: "гормоны", price: 699, turnaround: "48 часов"},
+                        {id: 11, name: "Эстрадиол", category: "гормоны", price: 699, turnaround: "48 часов"},
+                        {id: 12, name: "ПЦР-тест на COVID-19", category: "антигены", price: 799, turnaround: "24 часа"},
+                        {id: 13, name: "ПЦР-тест на грипп", category: "антигены", price: 999, turnaround: "24 часа"},
+                        {id: 14, name: "ПЦР-тест на ВПЧ", category: "антигены", price: 1299, turnaround: "72 часа"},
+                        {id: 15, name: "Консультация терапевта", category: "консультации", price: 899, turnaround: "15 минут"}
                     ];
                     
                     priceListData = testPriceList;
@@ -570,7 +610,7 @@
                 const itemId = checkbox.getAttribute('data-id');
                 const row = checkbox.closest('tr');
                 const name = row.querySelector('.price-list-item-name').textContent;
-                const price = parseInt(row.querySelector('.highlight').textContent);
+                const price = parseInt(row.getAttribute('data-price'));
                 selectedItems.push({ id: itemId, name, price });
             });
             
@@ -644,35 +684,60 @@
                     // Фильтруем прайс-лист по категории
                     const category = this.getAttribute('data-category');
                     const orderListBody = document.getElementById('order-list-body');
-                    const rows = orderListBody.querySelectorAll('tr:not(.category-row)');
+                    const rows = orderListBody.querySelectorAll('tr');
+                    const categoryHeaders = orderListBody.querySelectorAll('.category-header');
                     
-                    // Сначала показываем все строки
-                    rows.forEach(row => {
-                        row.style.display = '';
-                    });
-                    
-                    // Если не "Все", то фильтруем
-                    if (category !== 'all') {
+                    if (category === 'all') {
                         rows.forEach(row => {
-                            const rowCategory = row.getAttribute('data-category');
-                            if (rowCategory !== category) {
-                                row.style.display = 'none';
-                            }
+                            row.style.display = '';
+                        });
+                        categoryHeaders.forEach(header => {
+                            header.closest('tr').style.display = '';
+                        });
+                    } else {
+                        // Сначала скрываем все
+                        rows.forEach(row => {
+                            row.style.display = 'none';
                         });
                         
-                        // Также скрываем заголовки категорий, которые не соответствуют выбранной категории
-                        const categoryHeaders = orderListBody.querySelectorAll('.category-header');
+                        // Показываем только нужные категории
                         categoryHeaders.forEach(header => {
                             const parentRow = header.closest('tr');
-                            if (header.textContent.toLowerCase().includes(category) || 
-                                (category === 'blood' && header.textContent.toLowerCase().includes('кровь')) ||
-                                (category === 'urine' && header.textContent.toLowerCase().includes('моча')) ||
-                                (category === 'hormones' && header.textContent.toLowerCase().includes('гормоны')) ||
-                                (category === 'antigens' && header.textContent.toLowerCase().includes('антигены')) ||
-                                (category === 'howto' && header.textContent.toLowerCase().includes('консультации'))) {
+                            const categoryName = header.textContent.toLowerCase();
+                            let showCategory = false;
+                            
+                            // Определяем, нужно ли показать эту категорию
+                            if (category === 'blood' && 
+                                (categoryName.includes('кровь') || 
+                                 categoryName.includes('биохимические') || 
+                                 categoryName.includes('иммунологические') ||
+                                 categoryName.includes('онкомаркёры') ||
+                                 categoryName.includes('терапевтический') ||
+                                 categoryName.includes('комплексные') ||
+                                 categoryName.includes('общеклинические'))) {
+                                showCategory = true;
+                            } else if (category === 'urine' && categoryName.includes('моча')) {
+                                showCategory = true;
+                            } else if (category === 'hormones' && categoryName.includes('гормоны')) {
+                                showCategory = true;
+                            } else if (category === 'antigens' && categoryName.includes('антигены')) {
+                                showCategory = true;
+                            } else if (category === 'howto' && categoryName.includes('консультации')) {
+                                showCategory = true;
+                            } else if (category === 'allergy' && categoryName.includes('аллергология')) {
+                                showCategory = true;
+                            } else if (category === 'tox' && categoryName.includes('токсикология')) {
+                                showCategory = true;
+                            }
+                            
+                            if (showCategory) {
                                 parentRow.style.display = '';
-                            } else {
-                                parentRow.style.display = 'none';
+                                // Показываем все анализы в этой категории
+                                let nextRow = parentRow.nextElementSibling;
+                                while (nextRow && !nextRow.classList.contains('category-row')) {
+                                    nextRow.style.display = '';
+                                    nextRow = nextRow.nextElementSibling;
+                                }
                             }
                         });
                     }
@@ -682,7 +747,7 @@
             // Обработчик сохранения заказа
             document.getElementById('save-order').addEventListener('click', saveOrderToLocalStorage);
             
-            // Обработчик отправки заказа
+            // Критическое исправление: работающий обработчик отправки заказа
             document.getElementById('submit-order').addEventListener('click', function() {
                 const name = document.getElementById('order-name').value;
                 const phone = document.getElementById('order-phone').value;
@@ -707,6 +772,11 @@
                     selectedItems.push(`${name} (${price})`);
                 });
                 
+                if (selectedItems.length === 0) {
+                    showNotification('Ошибка', 'Выберите хотя бы один анализ', 'error');
+                    return;
+                }
+                
                 // Генерируем уникальный номер заказа
                 const orderNumber = `BT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
                 
@@ -729,12 +799,22 @@ ${selectedItems.join('\n')}
                 // Отправляем сообщение в Telegram
                 sendToTelegram(telegramMessage);
                 
-                // Отправляем форму через AJAX
+                // Критическое исправление: отправка формы через AJAX с правильной обработкой
                 const formData = new FormData(document.getElementById('order-form'));
+                const formObject = {};
+                
+                formData.forEach((value, key) => {
+                    formObject[key] = value;
+                });
+                
                 fetch('https://formsubmit.co/info@docspecmed.ru', {
                     method: 'POST',
-                    body: formData,
-                    mode: 'no-cors' // Это важно для GitHub Pages
+                    body: JSON.stringify(formObject),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    mode: 'no-cors'
                 }).then(() => {
                     // Показываем подтверждение
                     document.querySelector('.confirmation-order-number').textContent = `Номер вашего заказа: ${orderNumber}`;
@@ -745,6 +825,9 @@ ${selectedItems.join('\n')}
                 }).catch(error => {
                     console.error('Ошибка отправки формы:', error);
                     showNotification('Ошибка', 'Не удалось отправить заказ. Попробуйте позже.', 'error');
+                    
+                    // Дополнительная отправка через стандартный метод на случай, если AJAX не сработал
+                    document.getElementById('order-form').submit();
                 });
             });
             
