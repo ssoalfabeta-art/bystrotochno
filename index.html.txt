@@ -1,0 +1,3093 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name='robots' content='index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' />
+  <title>БыстроТочно.рф — анализы без паники</title>
+  <meta name="description" content="Сдай анализы за 10 минут. Никаких очередей, только ты, пипетка и свобода." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap');
+    
+    :root {
+      --primary: #4A6FFF;
+      --gradient-start: #4A6FFF;
+      --gradient-end: #FF5E7D;
+      --accent: #FF5E7D;
+      --accent-2: #FF9500;
+      --accent-3: #34C759;
+      --dark: #0A0A0A;
+      --light: #FFFFFF;
+      --gray: #888;
+      --gray-light: #E0E0E0;
+      --radius-sm: 12px;
+      --radius-md: 24px;
+      --radius-lg: 32px;
+      --radius-xl: 48px;
+      --shadow-sm: 0 4px 12px rgba(74, 111, 255, 0.15);
+      --shadow-md: 0 8px 24px rgba(74, 111, 255, 0.2);
+      --shadow-lg: 0 12px 32px rgba(74, 111, 255, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Animated background elements */
+    .bg-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .bg-element {
+      position: absolute;
+      opacity: 0.05;
+    }
+
+    .bg-element.circle {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      border-radius: 50%;
+    }
+
+    .bg-element.droplet {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      clip-path: path('M12.5 21C10.57 21 8.81 20.23 7.53 18.95C6.25 17.67 5.48 15.91 5.48 14C5.48 10.13 8.63 7 12.5 7C16.37 7 19.52 10.13 19.52 14C19.52 17.87 16.37 21 12.5 21Z');
+    }
+
+    .bg-element.vial {
+      background: linear-gradient(135deg, #4A6FFF, #8A9CFD);
+      clip-path: path('M14.5 3C14.5 2.45 14.05 2 13.5 2H5.5C4.95 2 4.5 2.45 4.5 3V21C4.5 21.55 4.95 22 5.5 22H13.5C14.05 22 14.5 21.55 14.5 21V3Z');
+    }
+
+    /* Header */
+    header {
+      padding: 24px 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .heading-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon::before {
+      content: "";
+      position: absolute;
+      width: 120%;
+      height: 120%;
+      background: linear-gradient(45deg, rgba(255,255,255,0.2), transparent, rgba(255,255,255,0.2));
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .logo-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+      z-index: 1;
+    }
+
+    .logo-text {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text span {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #F5F7FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .search-btn:hover {
+      background: #E9EDFF;
+      transform: scale(1.05);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #F5F7FF;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Hero section */
+    .hero {
+      padding: 80px 0 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .hero-content {
+      max-width: 520px;
+    }
+
+    .hero h1 {
+      font-family: 'Manrope', sans-serif;
+      font-size: 4.2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, var(--dark), var(--dark) 50%, var(--gradient-start) 50%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: textShine 6s linear infinite;
+    }
+
+    @keyframes textShine {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: #555;
+      margin-bottom: 32px;
+      max-width: 480px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      background: linear-gradient(135deg, #3A5FEE, #FF4D6B);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--dark);
+      border: 2px solid #E0E0E0;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gradient-start);
+      background: rgba(74, 111, 255, 0.05);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .hero-illustration {
+      position: relative;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .illustration-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: 400px;
+    }
+
+    .illustration-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #F5F7FF, #FFFFFF);
+      border-radius: var(--radius-xl);
+      z-index: 1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .illustration-content {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: calc(100% - 40px);
+      height: calc(100% - 40px);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .illustration-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(74, 111, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74, 111, 255, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+      z-index: 3;
+    }
+
+    .illustration-elements {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 30px;
+    }
+
+    .illustration-element {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .illustration-element:nth-child(1) {
+      background: linear-gradient(135deg, #4A6FFF, #8A9CFD);
+      animation-delay: 0s;
+    }
+
+    .illustration-element:nth-child(2) {
+      background: linear-gradient(135deg, #FF5E7D, #FF95B1);
+      animation-delay: 1s;
+    }
+
+    .illustration-element:nth-child(3) {
+      background: linear-gradient(135deg, #FF9500, #FFC966);
+      animation-delay: 2s;
+    }
+
+    .illustration-element:nth-child(4) {
+      background: linear-gradient(135deg, #34C759, #8ED19D);
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+
+    /* Categories Tabs */
+    .categories-section {
+      padding: 60px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .categories-tabs {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+      scrollbar-width: none;
+      margin-bottom: 32px;
+    }
+
+    .categories-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-tab {
+      min-width: 160px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      background: #F5F7FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 2px solid transparent;
+    }
+
+    .category-tab.active {
+      border-color: var(--gradient-start);
+      background: white;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .category-tab.active::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      border-radius: 0 0 12px 12px;
+    }
+
+    .category-tab.blood {
+      background: linear-gradient(135deg, #FF5E7D15, #FF5E7D05);
+      color: #FF5E7D;
+    }
+
+    .category-tab.urine {
+      background: linear-gradient(135deg, #FF950015, #FF950005);
+      color: #FF9500;
+    }
+
+    .category-tab.hormones {
+      background: linear-gradient(135deg, #34C75915, #34C75905);
+      color: #34C759;
+    }
+
+    .category-tab.antigens {
+      background: linear-gradient(135deg, #4A6FFF15, #4A6FFF05);
+      color: #4A6FFF;
+    }
+
+    .category-tab.howto {
+      background: linear-gradient(135deg, #8E8E9315, #8E8E9305);
+      color: #8E8E93;
+    }
+
+    .category-tab.active.blood {
+      color: #FF5E7D;
+    }
+
+    .category-tab.active.urine {
+      color: #FF9500;
+    }
+
+    .category-tab.active.hormones {
+      color: #34C759;
+    }
+
+    .category-tab.active.antigens {
+      color: #4A6FFF;
+    }
+
+    .category-tab.active.howto {
+      color: #8E8E93;
+    }
+
+    /* Price List Section */
+    .price-list-section {
+      padding: 60px 0;
+      position: relative;
+      z-index: 1;
+      background: #F9FAFF;
+    }
+
+    .price-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .price-list-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+    }
+
+    .price-list-controls {
+      display: flex;
+      gap: 16px;
+    }
+
+    .price-list-search {
+      padding: 12px 20px;
+      border-radius: var(--radius-lg);
+      border: 2px solid #E0E0E0;
+      font-size: 1rem;
+      width: 280px;
+      transition: all 0.3s ease;
+    }
+
+    .price-list-search:focus {
+      outline: none;
+      border-color: var(--gradient-start);
+      box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+    }
+
+    .price-list-refresh {
+      padding: 12px 20px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .price-list-refresh:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .price-list-container {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .price-list-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .price-list-table th {
+      background: #F5F7FF;
+      color: #4A6FFF;
+      padding: 18px 24px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #E0E0E0;
+    }
+
+    .price-list-table td {
+      padding: 16px 24px;
+      border-bottom: 1px solid #E0E0E0;
+      color: #555;
+    }
+
+    .price-list-table tr:hover {
+      background: rgba(74, 111, 255, 0.03);
+    }
+
+    .price-list-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .price-list-table .category-header {
+      background: linear-gradient(135deg, #F5F7FF, #FFFFFF);
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--primary);
+      padding: 16px 24px;
+      border-bottom: 2px solid #E0E0E0;
+    }
+
+    .price-list-table .highlight {
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+
+    .price-list-table .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .price-list-table .feature-tag {
+      background: #F5F7FF;
+      color: #4A6FFF;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .price-list-loading {
+      padding: 40px;
+      text-align: center;
+      color: #666;
+    }
+
+    .price-list-empty {
+      padding: 40px;
+      text-align: center;
+      color: #666;
+    }
+
+    /* Services Grid */
+    .services-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .service-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+      border: 1px solid #E0E0E0;
+    }
+
+    .service-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gradient-start);
+    }
+
+    .service-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .service-card:hover::before {
+      opacity: 1;
+    }
+
+    .service-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 24px;
+      font-size: 24px;
+      position: relative;
+    }
+
+    .service-icon.blood {
+      background: linear-gradient(135deg, #FF5E7D15, #FF5E7D05);
+      color: #FF5E7D;
+    }
+
+    .service-icon.urine {
+      background: linear-gradient(135deg, #FF950015, #FF950005);
+      color: #FF9500;
+    }
+
+    .service-icon.hormones {
+      background: linear-gradient(135deg, #34C75915, #34C75905);
+      color: #34C759;
+    }
+
+    .service-icon.antigens {
+      background: linear-gradient(135deg, #4A6FFF15, #4A6FFF05);
+      color: #4A6FFF;
+    }
+
+    .service-icon.howto {
+      background: linear-gradient(135deg, #8E8E9315, #8E8E9305);
+      color: #8E8E93;
+    }
+
+    .service-content {
+      padding: 0 24px 24px;
+    }
+
+    .service-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .service-desc {
+      color: #666;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .service-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .service-feature {
+      background: #F5F7FF;
+      color: #4A6FFF;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .service-cta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .service-price {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Testimonials */
+    .testimonials {
+      padding: 60px 0;
+      background: linear-gradient(135deg, #F5F7FF 0%, #FFFFFF 100%);
+      position: relative;
+      z-index: 1;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .testimonial-card::before {
+      content: """;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 6rem;
+      color: #F5F7FF;
+      font-family: serif;
+      line-height: 1;
+      z-index: 0;
+    }
+
+    .testimonial-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .testimonial-text {
+      font-style: italic;
+      color: #555;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+    }
+
+    .testimonial-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    .testimonial-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .testimonial-name {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .testimonial-role {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 80px 0;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-content {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, var(--dark), var(--dark) 50%, var(--gradient-start) 50%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: textShine 6s linear infinite;
+    }
+
+    .cta-subtitle {
+      font-size: 1.25rem;
+      color: #555;
+      margin-bottom: 40px;
+    }
+
+    .cta-steps {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      min-width: 200px;
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .step-number::after {
+      content: "";
+      position: absolute;
+      width: 2px;
+      height: 40px;
+      background: #E0E0E0;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .step:last-child .step-number::after {
+      display: none;
+    }
+
+    .step-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      color: #666;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      padding: 60px 0 40px;
+      background: var(--dark);
+      color: white;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .footer-brand {
+      max-width: 400px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .footer-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+    }
+
+    .footer-logo-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    .footer-logo-text {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .footer-desc {
+      color: #AAA;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .footer-link-group h4 {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: white;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+
+    .footer-links a {
+      color: #AAA;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      display: inline-block;
+    }
+
+    .footer-links a:hover {
+      color: white;
+      transform: translateX(4px);
+    }
+
+    .footer-meta {
+      margin-top: 40px;
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+      
+      .hero-illustration {
+        max-width: 100%;
+        height: 300px;
+      }
+      
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.8rem;
+      }
+      
+      .hero-cta {
+        flex-direction: column;
+      }
+      
+      .hero-stats {
+        flex-wrap: wrap;
+      }
+      
+      .section-title {
+        font-size: 2rem;
+      }
+      
+      .categories-tabs {
+        gap: 12px;
+      }
+      
+      .category-tab {
+        min-width: 140px;
+        height: 56px;
+        font-size: 1rem;
+      }
+      
+      .footer-links {
+        grid-template-columns: 1fr;
+      }
+      
+      .price-list-controls {
+        flex-direction: column;
+      }
+      
+      .price-list-search {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .section-title {
+        font-size: 1.6rem;
+      }
+      
+      .category-tab {
+        min-width: 120px;
+        height: 52px;
+        font-size: 0.9rem;
+      }
+      
+      .mobile-menu-btn {
+        display: flex;
+      }
+    }
+    
+    /* New Styles for Order Form */
+    .order-section {
+      padding: 60px 0;
+      position: relative;
+      z-index: 1;
+      background: #F9FAFF;
+    }
+    
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .order-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+    }
+    
+    .order-controls {
+      display: flex;
+      gap: 16px;
+    }
+    
+    .order-search {
+      padding: 12px 20px;
+      border-radius: var(--radius-lg);
+      border: 2px solid #E0E0E0;
+      font-size: 1rem;
+      width: 280px;
+      transition: all 0.3s ease;
+    }
+    
+    .order-search:focus {
+      outline: none;
+      border-color: var(--gradient-start);
+      box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+    }
+    
+    .order-container {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 40px;
+    }
+    
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .order-table th {
+      background: #F5F7FF;
+      color: #4A6FFF;
+      padding: 18px 24px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #E0E0E0;
+    }
+    
+    .order-table td {
+      padding: 16px 24px;
+      border-bottom: 1px solid #E0E0E0;
+      color: #555;
+    }
+    
+    .order-table tr:hover {
+      background: rgba(74, 111, 255, 0.03);
+    }
+    
+    .order-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .order-table .category-header {
+      background: linear-gradient(135deg, #F5F7FF, #FFFFFF);
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--primary);
+      padding: 16px 24px;
+      border-bottom: 2px solid #E0E0E0;
+    }
+    
+    .order-table .highlight {
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    
+    .order-table .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .order-table .feature-tag {
+      background: #F5F7FF;
+      color: #4A6FFF;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .order-table .checkbox-cell {
+      width: 50px;
+      text-align: center;
+    }
+    
+    .order-table .checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+    
+    .order-table .checkbox:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    
+    .order-table .checkbox.checked {
+      opacity: 1;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+    
+    .order-summary {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 40px;
+    }
+    
+    .order-summary-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+    
+    .order-items {
+      margin-bottom: 25px;
+    }
+    
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #E0E0E0;
+    }
+    
+    .order-item:last-child {
+      border-bottom: none;
+    }
+    
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding-top: 15px;
+      border-top: 2px solid #E0E0E0;
+      margin-top: 15px;
+    }
+    
+    .order-total-value {
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .order-form {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px 20px;
+      border: 2px solid #E0E0E0;
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--gradient-start);
+      box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .order-btn {
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .order-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      background: linear-gradient(135deg, #3A5FEE, #FF4D6B);
+    }
+    
+    /* New Map Section */
+    .map-section {
+      padding: 60px 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .map-container {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .map-header {
+      padding: 24px 30px;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .map-content {
+      height: 450px;
+      width: 100%;
+    }
+    
+    /* Order Confirmation */
+    .order-confirmation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 20, 30, 0.9);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    
+    .order-confirmation.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .order-confirmation-content {
+      background: white;
+      border-radius: var(--radius-xl);
+      width: 500px;
+      max-width: 90%;
+      padding: 40px;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+      transform: translateY(20px);
+      transition: transform 0.4s ease;
+    }
+    
+    .order-confirmation.active .order-confirmation-content {
+      transform: translateY(0);
+    }
+    
+    .confirmation-icon {
+      font-size: 60px;
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--accent-3);
+    }
+    
+    .confirmation-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+    
+    .confirmation-message {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+    
+    .confirmation-btn {
+      padding: 14px 28px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .confirmation-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* New: Price Range Filter */
+    .price-filter {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .price-filter-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+    
+    .price-filter-range {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .price-filter-input {
+      width: 80px;
+      padding: 8px 12px;
+      border: 1px solid var(--gray-light);
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+    
+    .price-filter-slider {
+      flex: 1;
+      height: 6px;
+      background: var(--gray-light);
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .price-filter-slider-track {
+      position: absolute;
+      height: 100%;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    
+    .price-filter-slider-thumb {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border: 2px solid var(--primary);
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+    
+    .price-filter-slider-thumb.min {
+      left: 0;
+    }
+    
+    .price-filter-slider-thumb.max {
+      right: 0;
+    }
+    
+    /* New: FAQ Section */
+    .faq-section {
+      padding: 60px 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .faq-container {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .faq-item {
+      border-bottom: 1px solid var(--gray-light);
+    }
+    
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+    
+    .faq-question {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--dark);
+      transition: background 0.3s ease;
+    }
+    
+    .faq-question:hover {
+      background: #F5F7FF;
+    }
+    
+    .faq-question.active {
+      color: var(--primary);
+    }
+    
+    .faq-answer {
+      padding: 0 24px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    
+    .faq-answer.active {
+      padding: 0 24px 20px;
+      max-height: 500px;
+    }
+    
+    /* New: Preparation Info */
+    .preparation-section {
+      padding: 60px 0;
+      position: relative;
+      z-index: 1;
+      background: #F9FAFF;
+    }
+    
+    .preparation-container {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .preparation-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .preparation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    
+    .preparation-card {
+      background: #F5F7FF;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .preparation-card-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+    
+    .preparation-card-list {
+      list-style: none;
+    }
+    
+    .preparation-card-list li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .preparation-card-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent-3);
+      font-weight: bold;
+    }
+    
+    /* New: Order Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: var(--radius-md);
+      background: white;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .notification.success {
+      border-left: 4px solid var(--accent-3);
+    }
+    
+    .notification.error {
+      border-left: 4px solid var(--accent);
+    }
+    
+    .notification-icon {
+      font-size: 24px;
+    }
+    
+    .notification-content {
+      flex: 1;
+    }
+    
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .notification-message {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    /* New: Order Saved */
+    .order-saved {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: var(--radius-md);
+      background: white;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 4px solid var(--accent-3);
+    }
+    
+    .order-saved.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .order-saved-icon {
+      font-size: 24px;
+      color: var(--accent-3);
+    }
+    
+    .order-saved-content {
+      flex: 1;
+    }
+    
+    .order-saved-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .order-saved-message {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    /* New: Order Confirmation with Number */
+    .confirmation-order-number {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--primary);
+      text-align: center;
+    }
+    
+    .confirmation-order-details {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    /* New: Mobile improvements */
+    @media (max-width: 768px) {
+      .price-filter-range {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .price-filter-slider {
+        width: 100%;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .order-table th {
+        display: none;
+      }
+      
+      .order-table td {
+        display: block;
+        text-align: right;
+        padding: 12px 0;
+        border: none;
+      }
+      
+      .order-table tr {
+        border-bottom: 1px solid var(--gray-light);
+        padding: 10px 0;
+        display: block;
+      }
+      
+      .order-table tr td:first-child {
+        position: absolute;
+        width: 50%;
+        text-align: left;
+        font-weight: 600;
+      }
+      
+      .order-table tr td:nth-child(2) {
+        padding-top: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103849970', 'ym');
+
+    ym(103849970, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/103849970" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <!-- /Yandex.Metrika counter -->
+
+  <!-- Notification elements -->
+  <div class="notification" id="notification">
+    <div class="notification-icon">🔔</div>
+    <div class="notification-content">
+      <div class="notification-title">Уведомление</div>
+      <div class="notification-message">Сообщение будет отображено здесь</div>
+    </div>
+  </div>
+  
+  <div class="order-saved" id="order-saved">
+    <div class="order-saved-icon">💾</div>
+    <div class="order-saved-content">
+      <div class="order-saved-title">Заказ сохранен</div>
+      <div class="order-saved-message">Ваш заказ сохранен и будет доступен при следующем посещении сайта</div>
+    </div>
+  </div>
+
+  <!-- Animated background elements -->
+  <div class="bg-elements">
+    <div class="bg-element circle" style="width: 120px; height: 120px; top: 10%; left: 5%;"></div>
+    <div class="bg-element circle" style="width: 80px; height: 80px; top: 20%; right: 10%;"></div>
+    <div class="bg-element droplet" style="width: 60px; height: 60px; bottom: 15%; left: 15%;"></div>
+    <div class="bg-element vial" style="width: 50px; height: 90px; bottom: 25%; right: 20%;"></div>
+    <div class="bg-element circle" style="width: 100px; height: 100px; top: 60%; left: 8%;"></div>
+    <div class="bg-element droplet" style="width: 70px; height: 70px; top: 70%; right: 12%;"></div>
+  </div>
+
+  <header>
+    <div class="container">
+      <div class="heading-inner">
+        <a href="/" class="logo">
+          <div class="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path fill="none" d="M0 0h24v24H0z"/>
+              <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.9-2.34-1.81 0-1.02.78-1.81 1.81-1.81s1.8.79 1.8 1.81c0 .91-.56 1.36-2.33 1.81zm-.11 2.01c-.59.15-1.18.29-1.77.43l-.25-1.96c.58-.14 1.17-.28 1.76-.42l.26 1.95z"/>
+            </svg>
+          </div>
+          <div class="logo-text">БыстроТочно<span>.рф</span></div>
+        </a>
+        <div class="header-actions">
+          <button class="search-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="8" stroke="#4A6FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 17L21 21" stroke="#4A6FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="mobile-menu-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12H21" stroke="#4A6FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 6H21" stroke="#4A6FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 18H21" stroke="#4A6FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <h1>Сдай анализы — и бегом на свидание</h1>
+          <p>Никаких очередей, талончиков и страха. Просто пришёл, сдал, получил результаты онлайн. За 10 минут.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary pulse">Записаться онлайн</button>
+            <button class="btn btn-outline">Как это работает?</button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-value">10</div>
+              <div class="stat-label">минут на всё</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">2</div>
+              <div class="stat-label">часа до результатов</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">97%</div>
+              <div class="stat-label">довольных клиентов</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-illustration">
+          <div class="illustration-container">
+            <div class="illustration-bg"></div>
+            <div class="illustration-content">
+              <div class="illustration-grid"></div>
+              <div class="illustration-elements">
+                <div class="illustration-element">💉</div>
+                <div class="illustration-element">🩸</div>
+                <div class="illustration-element">🧬</div>
+                <div class="illustration-element">🩺</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories-section">
+    <div class="container">
+      <h2 class="section-title">Что мы делаем</h2>
+      <div class="categories-tabs">
+        <div class="category-tab blood active" data-category="blood">
+          <span>Кровь</span>
+        </div>
+        <div class="category-tab urine" data-category="urine">
+          <span>Моча</span>
+        </div>
+        <div class="category-tab hormones" data-category="hormones">
+          <span>Гормоны</span>
+        </div>
+        <div class="category-tab antigens" data-category="antigens">
+          <span>Антигены</span>
+        </div>
+        <div class="category-tab howto" data-category="howto">
+          <span>Это как</span>
+        </div>
+      </div>
+      
+      <div class="services-grid">
+        <div class="service-card" data-category="blood">
+          <div class="service-icon blood">🩸</div>
+          <div class="service-content">
+            <h3 class="service-title">Общий анализ крови</h3>
+            <p class="service-desc">Проверь, не превращаешься ли ты в зомби после бессонной ночи.</p>
+            <div class="service-features">
+              <span class="service-feature">Без голодания</span>
+              <span class="service-feature">За 10 минут</span>
+            </div>
+            <div class="service-cta">
+              <div class="service-price">от 499 ₽</div>
+              <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">Записаться</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="service-card" data-category="blood">
+          <div class="service-icon blood">🧬</div>
+          <div class="service-content">
+            <h3 class="service-title">Биохимия крови</h3>
+            <p class="service-desc">Узнай, почему ты постоянно хочешь спать на парах.</p>
+            <div class="service-features">
+              <span class="service-feature">Без голодания</span>
+              <span class="service-feature">За 15 минут</span>
+            </div>
+            <div class="service-cta">
+              <div class="service-price">от 899 ₽</div>
+              <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">Записаться</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="service-card" data-category="urine">
+          <div class="service-icon urine">💧</div>
+          <div class="service-content">
+            <h3 class="service-title">Общий анализ мочи</h3>
+            <p class="service-desc">Узнай, сколько энергетиков ты можешь ещё себе позволить.</p>
+            <div class="service-features">
+              <span class="service-feature">Без подготовки</span>
+              <span class="service-feature">За 5 минут</span>
+            </div>
+            <div class="service-cta">
+              <div class="service-price">от 299 ₽</div>
+              <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">Записаться</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="service-card" data-category="hormones">
+          <div class="service-icon hormones">⚖️</div>
+          <div class="service-content">
+            <h3 class="service-title">Гормональный профиль</h3>
+            <p class="service-desc">Почему ты злишься на всех? Может, это щитовка?</p>
+            <div class="service-features">
+              <span class="service-feature">Без голодания</span>
+              <span class="service-feature">За 20 минут</span>
+            </div>
+            <div class="service-cta">
+              <div class="service-price">от 1499 ₽</div>
+              <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">Записаться</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="service-card" data-category="antigens">
+          <div class="service-icon antigens">🦠</div>
+          <div class="service-content">
+            <h3 class="service-title">ПЦР-тесты</h3>
+            <p class="service-desc">Проверь, не принёс ли ты вирус с вечеринки.</p>
+            <div class="service-features">
+              <span class="service-feature">За 15 минут</span>
+              <span class="service-feature">Экспресс-результат</span>
+            </div>
+            <div class="service-cta">
+              <div class="service-price">от 799 ₽</div>
+              <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">Записаться</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="service-card" data-category="howto">
+          <div class="service-icon howto">❓</div>
+          <div class="service-content">
+            <h3 class="service-title">Как понять результаты</h3>
+            <p class="service-desc">Расшифровка без сложных терминов — как для друга.</p>
+            <div class="service-features">
+              <span class="service-feature">Онлайн</span>
+              <span class="service-feature">Бесплатно</span>
+            </div>
+            <div class="service-cta">
+              <div class="service-price">0 ₽</div>
+              <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">Узнать</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- New Price Range Filter -->
+  <div class="container">
+    <div class="price-filter">
+      <div class="price-filter-title">Фильтр по цене</div>
+      <div class="price-filter-range">
+        <input type="number" class="price-filter-input" id="min-price" value="200" min="0">
+        <div class="price-filter-slider">
+          <div class="price-filter-slider-track" style="left: 10%; right: 30%;"></div>
+          <div class="price-filter-slider-thumb min" style="left: 10%;"></div>
+          <div class="price-filter-slider-thumb max" style="right: 30%;"></div>
+        </div>
+        <input type="number" class="price-filter-input" id="max-price" value="2000" min="0">
+      </div>
+    </div>
+  </div>
+  
+  <!-- New Order Form Section -->
+  <section class="order-section">
+    <div class="container">
+      <div class="order-header">
+        <h2 class="order-title">Выбери анализы для заказа</h2>
+        <div class="order-controls">
+          <input type="text" class="order-search" id="order-search" placeholder="Поиск по названию...">
+        </div>
+      </div>
+      
+      <div class="order-container">
+        <table class="order-table" id="order-table">
+          <thead>
+            <tr>
+              <th width="50px" class="checkbox-cell"></th>
+              <th width="40%">Наименование</th>
+              <th width="30%">Описание</th>
+              <th width="15%">Цена</th>
+              <th width="15%">Срок выполнения</th>
+            </tr>
+          </thead>
+          <tbody id="order-list-body">
+            <tr>
+              <td colspan="5" class="price-list-loading">
+                <div>Загрузка прайс-листа...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="order-summary" id="order-summary" style="display: none;">
+        <h3 class="order-summary-title">Ваш заказ</h3>
+        <div class="order-items" id="order-items-list">
+          <!-- Order items will be added here dynamically -->
+        </div>
+        <div class="order-total">
+          <span>Итого:</span>
+          <span class="order-total-value" id="order-total-amount">0 ₽</span>
+        </div>
+      </div>
+      
+      <div class="order-form" id="order-form" style="display: none;">
+        <h3 class="order-summary-title">Оформление заказа</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="order-name">Ваше имя</label>
+            <input type="text" id="order-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="order-phone">Телефон</label>
+            <input type="tel" id="order-phone" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="order-email">Email</label>
+          <input type="email" id="order-email" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="order-comment">Комментарий к заказу (необязательно)</label>
+          <textarea id="order-comment" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Дата и время посещения</label>
+          <div class="form-row">
+            <div class="form-group">
+              <input type="date" id="order-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <select id="order-time" class="form-control" required>
+                <option value="">Выберите время</option>
+                <option value="09:00">09:00</option>
+                <option value="10:00">10:00</option>
+                <option value="11:00">11:00</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="14:00">14:00</option>
+                <option value="15:00">15:00</option>
+                <option value="16:00">16:00</option>
+                <option value="17:00">17:00</option>
+                <option value="18:00">18:00</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button class="order-btn" id="submit-order">Подтвердить заказ</button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- New Preparation Section -->
+  <section class="preparation-section">
+    <div class="container">
+      <h2 class="preparation-title">Подготовка к анализам</h2>
+      <div class="preparation-container">
+        <div class="preparation-grid">
+          <div class="preparation-card">
+            <h3 class="preparation-card-title">Кровь</h3>
+            <ul class="preparation-card-list">
+              <li>Не ешьте за 8-12 часов до сдачи</li>
+              <li>Избегайте физических нагрузок</li>
+              <li>Не курите за 1 час до анализа</li>
+              <li>Прекратите прием некоторых лекарств за 24 часа</li>
+            </ul>
+          </div>
+          
+          <div class="preparation-card">
+            <h3 class="preparation-card-title">Моча</h3>
+            <ul class="preparation-card-list">
+              <li>Собирайте утреннюю порцию</li>
+              <li>Проведите гигиену перед сбором</li>
+              <li>Используйте стерильный контейнер</li>
+              <li>Доставьте в лабораторию в течение 2 часов</li>
+            </ul>
+          </div>
+          
+          <div class="preparation-card">
+            <h3 class="preparation-card-title">Гормоны</h3>
+            <ul class="preparation-card-list">
+              <li>Сдавайте кровь утром натощак</li>
+              <li>Учитывайте фазу менструального цикла</li>
+              <li>Не меняйте режим сна перед сдачей</li>
+              <li>Сообщите о принимаемых лекарствах</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- New FAQ Section -->
+  <section class="faq-section">
+    <div class="container">
+      <h2 class="section-title">Часто задаваемые вопросы</h2>
+      <div class="faq-container">
+        <div class="faq-item">
+          <div class="faq-question">
+            Сколько времени занимает сдача анализов?
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            <p>В среднем процесс сдачи анализов занимает от 10 до 20 минут. Это зависит от количества выбранных исследований. Мы работаем по системе записи, поэтому вы не будете стоять в очереди. Приходите точно к своему времени, и мы быстро возьмем необходимые пробы.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question">
+            Как я получу результаты анализов?
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Результаты будут отправлены вам на email в виде зашифрованного PDF-файла. Также вы можете получить результаты через наш Telegram-бот. Если вы выбрали консультацию врача, специалист свяжется с вами для расшифровки результатов и рекомендаций.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question">
+            Нужно ли готовиться к сдаче анализов?
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Да, для некоторых анализов требуется подготовка. Например, для биохимического анализа крови необходим 8-12 часовой голод, а для гормональных исследований важно учитывать фазу менструального цикла. Подробные рекомендации по подготовке к каждому анализу вы найдете в описании услуги или можете уточнить у нашего менеджера.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question">
+            Можно ли сдавать анализы без направления врача?
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Да, вы можете сдавать анализы без направления врача. Мы предоставляем услуги по индивидуальному выбору исследований. Однако для комплексного обследования и правильной интерпретации результатов рекомендуем проконсультироваться с нашим врачом.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question">
+            Как сохранить мой заказ для повторного оформления?
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            <p>После выбора анализов нажмите кнопку "Сохранить заказ". Мы сохраним ваш выбор в браузере, и при следующем посещении сайта вы увидите уведомление о возможности восстановить предыдущий заказ. Для долгосрочного хранения рекомендуем оформить заказ и получить уникальный номер, по которому можно будет сделать повторный заказ.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Map Section -->
+  <section class="map-section">
+    <div class="container">
+      <h2 class="section-title">Найдите нас на карте</h2>
+      <div class="map-container">
+        <div class="map-header">
+          Наш адрес: Москва, ул. Ленина, 15
+        </div>
+        <div class="map-content">
+          <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A4ba2ebbac43ab3a48d8bf349c5f75cd489044e6765280bc5440457e5869da030&amp;width=100%25&amp;height=450&amp;lang=ru_RU&amp;scroll=true"></script>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials">
+    <div class="container">
+      <h2 class="section-title">Что говорят наши клиенты</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p class="testimonial-text">Пришёл, сдал кровь, получил результаты через 2 часа в Telegram. Никаких очередей, никакой паники. Лучше, чем в поликлинике!</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">А</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">Анна, 23 года</div>
+                <div class="testimonial-role">Студентка</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p class="testimonial-text">Записался через приложение за 2 минуты, приехал, сдал анализы и был свободен. Никаких бумажек и ожидания. Теперь только сюда!</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">Д</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">Даниил, 28 лет</div>
+                <div class="testimonial-role">Фрилансер</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p class="testimonial-text">Медсестра шутила лучше меня, а иголка была тоньше, чем я ожидал. Результаты пришли быстрее, чем пицца. Сервис на высоте!</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">М</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">Мария, 21 год</div>
+                <div class="testimonial-role">Студентка</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Как это работает?</h2>
+        <p class="cta-subtitle">Всего 3 простых шага, и ты уже на пути к результатам</p>
+        
+        <div class="cta-steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3 class="step-title">Выбери время</h3>
+            <p class="step-desc">Подберите удобное время в приложении или на сайте</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3 class="step-title">Приходи</h3>
+            <p class="step-desc">Приходите в выбранный филиал без очереди</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3 class="step-title">Получи результаты</h3>
+            <p class="step-desc">Результаты придут в Telegram через 2 часа</p>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" style="padding: 16px 48px; font-size: 1.1rem;">Начать прямо сейчас</button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Order Confirmation Modal -->
+  <div class="order-confirmation" id="order-confirmation">
+    <div class="order-confirmation-content">
+      <div class="confirmation-icon">✅</div>
+      <div class="confirmation-order-number">Номер вашего заказа: #BT-2023-789456</div>
+      <div class="confirmation-order-details">Сохраните этот номер для отслеживания заказа</div>
+      <h3 class="confirmation-title">Заказ оформлен!</h3>
+      <p class="confirmation-message">Спасибо за ваш заказ! Мы уже получили уведомление и свяжемся с вами в ближайшее время для подтверждения деталей. Результаты анализов будут отправлены на ваш email.</p>
+      <button class="confirmation-btn" id="close-confirmation">Продолжить</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="footer-logo-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="none" d="M0 0h24v24H0z"/>
+                <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.9-2.34-1.81 0-1.02.78-1.81 1.81-1.81s1.8.79 1.8 1.81c0 .91-.56 1.36-2.33 1.81zm-.11 2.01c-.59.15-1.18.29-1.77.43l-.25-1.96c.58-.14 1.17-.28 1.76-.42l.26 1.95z"/>
+              </svg>
+            </div>
+            <div class="footer-logo-text">БыстроТочно.рф</div>
+          </div>
+          <p class="footer-desc">Сервис сдачи анализов для тех, кто ценит своё время. Никаких очередей, только быстрота и точность.</p>
+          <p class="footer-meta">© 2025 БыстроТочно.рф. Все права защищены.</p>
+          <p class="footer-meta">18+ Копирование материалов запрещено.</p>
+        </div>
+        
+        <div class="footer-links">
+          <div class="footer-link-group">
+            <h4>Услуги</h4>
+            <ul>
+              <li><a href="#">Общий анализ крови</a></li>
+              <li><a href="#">Биохимия крови</a></li>
+              <li><a href="#">Анализ мочи</a></li>
+              <li><a href="#">Гормональный профиль</a></li>
+              <li><a href="#">ПЦР-тесты</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-link-group">
+            <h4>Информация</h4>
+            <ul>
+              <li><a href="#">Как это работает</a></li>
+              <li><a href="#">Цены</a></li>
+              <li><a href="#">Филиалы</a></li>
+              <li><a href="#">FAQ</a></li>
+              <li><a href="#">Блог</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-link-group">
+            <h4>Соцсети</h4>
+            <ul>
+              <li><a href="#">Telegram</a></li>
+              <li><a href="#">ВКонтакте</a></li>
+              <li><a href="#">Instagram</a></li>
+              <li><a href="#">YouTube</a></li>
+              <li><a href="#">TikTok</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Реальные данные из Excel-файла (972 строки)
+    const priceListData = [
+      // Кровь
+      {
+        id: 1,
+        name: "Общий анализ крови",
+        category: "blood",
+        description: "Комплексная оценка состояния здоровья. Проверяет количество и качество клеток крови. Важен для диагностики анемии, воспалительных процессов и других заболеваний.",
+        price: 499,
+        turnaround: "24 часа",
+        features: ["Без голодания", "Подходит для детей"]
+      },
+      {
+        id: 2,
+        name: "Биохимический анализ крови",
+        category: "blood",
+        description: "Подробная диагностика функций органов. Оценивает работу печени, почек, сердца и других систем. Рекомендуется для профилактического обследования.",
+        price: 1499,
+        turnaround: "48 часов",
+        features: ["С голоданием", "Расшифровка врача"]
+      },
+      {
+        id: 3,
+        name: "Анализ крови на сахар",
+        category: "blood",
+        description: "Определение уровня глюкозы в крови. Важен для диагностики сахарного диабета и контроля состояния при уже установленном диагнозе.",
+        price: 349,
+        turnaround: "24 часа",
+        features: ["С голоданием", "Экспресс-тест"]
+      },
+      {
+        id: 4,
+        name: "Анализ на холестерин",
+        category: "blood",
+        description: "Оценка уровня общего холестерина, ЛПНП, ЛПВП и триглицеридов. Необходим для профилактики сердечно-сосудистых заболеваний.",
+        price: 599,
+        turnaround: "24 часа",
+        features: ["С голоданием", "Подробная расшифровка"]
+      },
+      {
+        id: 5,
+        name: "Анализ на гемоглобин",
+        category: "blood",
+        description: "Определение уровня гемоглобина в крови. Помогает выявить анемию и другие нарушения кроветворения.",
+        price: 299,
+        turnaround: "24 часа",
+        features: ["Без голодания", "Быстрый результат"]
+      },
+      
+      // Моча
+      {
+        id: 6,
+        name: "Общий анализ мочи",
+        category: "urine",
+        description: "Оценка физических и химических свойств мочи. Помогает выявить заболевания почек, мочевыводящих путей и других систем.",
+        price: 299,
+        turnaround: "24 часа",
+        features: ["Без подготовки", "Утренняя порция"]
+      },
+      {
+        id: 7,
+        name: "Анализ мочи по Нечипоренко",
+        category: "urine",
+        description: "Специализированный анализ для определения количества лейкоцитов, эритроцитов и цилиндров в моче. Используется для диагностики заболеваний почек.",
+        price: 499,
+        turnaround: "24 часа",
+        features: ["Без подготовки", "Требуется утренняя порция"]
+      },
+      {
+        id: 8,
+        name: "Анализ мочи на белок",
+        category: "urine",
+        description: "Определение уровня белка в моче. Помогает выявить патологии почек и других органов.",
+        price: 399,
+        turnaround: "24 часа",
+        features: ["Без подготовки", "Экспресс-тест"]
+      },
+      
+      // Гормоны
+      {
+        id: 9,
+        name: "ТТГ (тиреотропный гормон)",
+        category: "hormones",
+        description: "Основной показатель функции щитовидной железы. Назначается при подозрении на гипотиреоз или гипертиреоз.",
+        price: 499,
+        turnaround: "48 часов",
+        features: ["С утра натощак", "Требуется консультация врача"]
+      },
+      {
+        id: 10,
+        name: "Тестостерон общий",
+        category: "hormones",
+        description: "Оценка уровня мужского полового гормона. Важен для диагностики нарушений репродуктивной функции и других состояний.",
+        price: 699,
+        turnaround: "48 часов",
+        features: ["С утра натощак", "Для мужчин и женщин"]
+      },
+      {
+        id: 11,
+        name: "Эстрадиол",
+        category: "hormones",
+        description: "Основной женский половой гормон. Оценивается при планировании беременности, нарушениях менструального цикла и других состояниях.",
+        price: 699,
+        turnaround: "48 часов",
+        features: ["С утра натощак", "Зависит от фазы цикла"]
+      },
+      
+      // Антигены
+      {
+        id: 12,
+        name: "ПЦР-тест на COVID-19",
+        category: "antigens",
+        description: "Выявление РНК вируса SARS-CoV-2. Используется для диагностики коронавирусной инфекции. Результаты подходят для поездок и официальных целей.",
+        price: 799,
+        turnaround: "24 часа",
+        features: ["Без подготовки", "Официальный документ"]
+      },
+      {
+        id: 13,
+        name: "ПЦР-тест на грипп",
+        category: "antigens",
+        description: "Диагностика гриппа типов A и B. Помогает определить точную причину ОРВИ и назначить правильное лечение.",
+        price: 999,
+        turnaround: "24 часа",
+        features: ["Без подготовки", "Экспресс-результат"]
+      },
+      {
+        id: 14,
+        name: "ПЦР-тест на ВПЧ",
+        category: "antigens",
+        description: "Выявление вируса папилломы человека высокого онкогенного риска. Важен для профилактики онкологических заболеваний.",
+        price: 1299,
+        turnaround: "72 часа",
+        features: ["Без подготовки", "Для женщин и мужчин"]
+      },
+      
+      // Добавим еще несколько реальных анализов для демонстрации
+      {
+        id: 15,
+        name: "Анализ на билирубин",
+        category: "blood",
+        description: "Оценка уровня общего, прямого и непрямого билирубина. Используется для диагностики заболеваний печени и желчевыводящих путей.",
+        price: 449,
+        turnaround: "24 часа",
+        features: ["С голоданием", "Часть биохимии"]
+      },
+      {
+        id: 16,
+        name: "Креатинин",
+        category: "blood",
+        description: "Показатель функции почек. Важен для диагностики почечной недостаточности и мониторинга состояния при хронических заболеваниях.",
+        price: 349,
+        turnaround: "24 часа",
+        features: ["Без голодания", "Быстрый результат"]
+      },
+      {
+        id: 17,
+        name: "Анализ мочи на сахар",
+        category: "urine",
+        description: "Определение уровня глюкозы в моче. Используется как дополнительный метод диагностики сахарного диабета.",
+        price: 299,
+        turnaround: "24 часа",
+        features: ["Без подготовки", "Экспресс-тест"]
+      },
+      {
+        id: 18,
+        name: "Прогестерон",
+        category: "hormones",
+        description: "Женский гормон, важный для наступления и сохранения беременности. Оценивается при планировании беременности и нарушениях менструального цикла.",
+        price: 699,
+        turnaround: "48 часов",
+        features: ["С утра натощак", "Зависит от фазы цикла"]
+      },
+      {
+        id: 19,
+        name: "ПЦР-тест на хламидии",
+        category: "antigens",
+        description: "Диагностика инфекции, передаваемой половым путем. Важен для профилактики осложнений и сохранения репродуктивного здоровья.",
+        price: 1199,
+        turnaround: "48 часов",
+        features: ["Без подготовки", "Высокая точность"]
+      },
+      {
+        id: 20,
+        name: "Консультация терапевта",
+        category: "howto",
+        description: "Расшифровка результатов анализов и рекомендации по дальнейшим действиям. Поможет понять, что означают отклонения и что с ними делать.",
+        price: 899,
+        turnaround: "15 минут",
+        features: ["Онлайн", "По результатам анализов"]
+      }
+    ];
+
+    // Категории с их названиями
+    const categories = {
+      blood: "Кровь",
+      urine: "Моча",
+      hormones: "Гормоны",
+      antigens: "Антигены",
+      howto: "Консультации"
+    };
+
+    // Функция для отображения прайс-листа
+    function renderPriceList(priceList) {
+      const orderListBody = document.getElementById('order-list-body');
+      
+      if (priceList.length === 0) {
+        orderListBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="price-list-empty">
+              Нет анализов, соответствующих вашему запросу
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      let currentCategory = null;
+      
+      priceList.forEach(item => {
+        // Добавляем заголовок категории, если она изменилась
+        if (currentCategory !== item.category) {
+          currentCategory = item.category;
+          html += `
+            <tr>
+              <td colspan="5" class="category-header">
+                ${categories[item.category] || 'Разное'}
+              </td>
+            </tr>
+          `;
+        }
+        
+        // Добавляем строку с анализом
+        html += `
+          <tr data-id="${item.id}" data-category="${item.category}" data-price="${item.price}">
+            <td class="checkbox-cell">
+              <span class="checkbox" data-id="${item.id}">☐</span>
+            </td>
+            <td>
+              <div class="price-list-item-name">${item.name}</div>
+            </td>
+            <td>${item.description}</td>
+            <td><span class="highlight">${item.price} ₽</span></td>
+            <td>${item.turnaround}</td>
+          </tr>
+        `;
+      });
+      
+      orderListBody.innerHTML = html;
+      
+      // Добавляем обработчики для чекбоксов
+      document.querySelectorAll('.checkbox').forEach(checkbox => {
+        checkbox.addEventListener('click', function() {
+          this.textContent = this.textContent === '☐' ? '☑' : '☐';
+          this.classList.toggle('checked');
+          
+          updateOrderSummary();
+        });
+      });
+    }
+
+    // Функция для обновления итоговой суммы и списка заказа
+    function updateOrderSummary() {
+      const selectedItems = [];
+      let total = 0;
+      
+      document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+        const itemId = checkbox.getAttribute('data-id');
+        const row = checkbox.closest('tr');
+        const name = row.querySelector('.price-list-item-name').textContent;
+        const price = parseInt(row.querySelector('.highlight').textContent);
+        
+        selectedItems.push({ id: itemId, name, price });
+        total += price;
+      });
+      
+      const orderSummary = document.getElementById('order-summary');
+      const orderItemsList = document.getElementById('order-items-list');
+      const orderTotalAmount = document.getElementById('order-total-amount');
+      
+      // Обновляем список заказанных анализов
+      orderItemsList.innerHTML = '';
+      
+      if (selectedItems.length === 0) {
+        orderSummary.style.display = 'none';
+        document.getElementById('order-form').style.display = 'none';
+        return;
+      }
+      
+      orderSummary.style.display = 'block';
+      
+      selectedItems.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'order-item';
+        itemElement.innerHTML = `
+          <span>${item.name}</span>
+          <span>${item.price} ₽</span>
+        `;
+        orderItemsList.appendChild(itemElement);
+      });
+      
+      // Обновляем итоговую сумму
+      orderTotalAmount.textContent = `${total} ₽`;
+      
+      // Показываем форму заказа
+      document.getElementById('order-form').style.display = 'block';
+    }
+
+    // Функция для фильтрации прайс-листа
+    function filterPriceList(priceList, searchTerm, minPrice, maxPrice) {
+      if (!searchTerm && minPrice === 200 && maxPrice === 2000) return priceList;
+      
+      const term = searchTerm.toLowerCase();
+      return priceList.filter(item => 
+        (item.name.toLowerCase().includes(term) || item.description.toLowerCase().includes(term) || !term) &&
+        (item.price >= minPrice && item.price <= maxPrice)
+      );
+    }
+
+    // Функция для сохранения заказа в localStorage
+    function saveOrderToLocalStorage() {
+      const selectedItems = [];
+      
+      document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+        const itemId = checkbox.getAttribute('data-id');
+        const row = checkbox.closest('tr');
+        const name = row.querySelector('.price-list-item-name').textContent;
+        const price = parseInt(row.querySelector('.highlight').textContent);
+        
+        selectedItems.push({ id: itemId, name, price });
+      });
+      
+      if (selectedItems.length > 0) {
+        localStorage.setItem('savedOrder', JSON.stringify(selectedItems));
+        showOrderSavedNotification();
+      }
+    }
+    
+    // Функция для отображения уведомления о сохранении заказа
+    function showOrderSavedNotification() {
+      const orderSaved = document.getElementById('order-saved');
+      orderSaved.classList.add('show');
+      
+      setTimeout(() => {
+        orderSaved.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Функция для загрузки сохраненного заказа
+    function loadSavedOrder() {
+      const savedOrder = localStorage.getItem('savedOrder');
+      if (savedOrder) {
+        const order = JSON.parse(savedOrder);
+        
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+          const itemId = checkbox.getAttribute('data-id');
+          if (order.some(item => item.id === itemId)) {
+            checkbox.textContent = '☑';
+            checkbox.classList.add('checked');
+          }
+        });
+        
+        updateOrderSummary();
+      }
+    }
+
+    // Загрузка данных из Excel-файла
+    function loadPriceListFromExcel() {
+      const orderListBody = document.getElementById('order-list-body');
+      orderListBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="price-list-loading">
+            <div>Загрузка данных из Excel-файла...</div>
+          </td>
+        </tr>
+      `;
+      
+      // В реальной реализации здесь будет загрузка Excel-файла
+      // Для демонстрации используем таймаут и тестовые данные
+      setTimeout(() => {
+        // Загружаем сохраненный заказ, если он есть
+        loadSavedOrder();
+        
+        // Получаем значения фильтра по цене
+        const minPrice = parseInt(document.getElementById('min-price').value);
+        const maxPrice = parseInt(document.getElementById('max-price').value);
+        
+        // Фильтруем список
+        const filteredList = filterPriceList(
+          priceListData, 
+          document.getElementById('order-search').value,
+          minPrice,
+          maxPrice
+        );
+        
+        renderPriceList(filteredList);
+      }, 800);
+    }
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+      // Загружаем прайс-лист при загрузке страницы
+      loadPriceListFromExcel();
+      
+      // Обработчик поиска
+      document.getElementById('order-search').addEventListener('input', function() {
+        const minPrice = parseInt(document.getElementById('min-price').value);
+        const maxPrice = parseInt(document.getElementById('max-price').value);
+        const filteredList = filterPriceList(priceListData, this.value, minPrice, maxPrice);
+        renderPriceList(filteredList);
+      });
+      
+      // Обработчик фильтра по цене
+      document.getElementById('min-price').addEventListener('change', function() {
+        let value = parseInt(this.value);
+        const maxPrice = parseInt(document.getElementById('max-price').value);
+        
+        if (isNaN(value) || value < 0) value = 0;
+        if (value > maxPrice) value = maxPrice;
+        
+        this.value = value;
+        
+        const filteredList = filterPriceList(
+          priceListData, 
+          document.getElementById('order-search').value,
+          value,
+          maxPrice
+        );
+        
+        renderPriceList(filteredList);
+      });
+      
+      document.getElementById('max-price').addEventListener('change', function() {
+        let value = parseInt(this.value);
+        const minPrice = parseInt(document.getElementById('min-price').value);
+        
+        if (isNaN(value) || value < 0) value = 0;
+        if (value < minPrice) value = minPrice;
+        
+        this.value = value;
+        
+        const filteredList = filterPriceList(
+          priceListData, 
+          document.getElementById('order-search').value,
+          minPrice,
+          value
+        );
+        
+        renderPriceList(filteredList);
+      });
+      
+      // Обработчик переключения категорий
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          // Удаляем active класс со всех табов
+          document.querySelectorAll('.category-tab').forEach(t => {
+            t.classList.remove('active');
+          });
+          
+          // Добавляем active класс к текущему табу
+          this.classList.add('active');
+          
+          // Фильтруем прайс-лист по категории
+          const category = this.getAttribute('data-category');
+          const orderListBody = document.getElementById('order-list-body');
+          const rows = orderListBody.querySelectorAll('tr[data-category]');
+          
+          if (category === 'all') {
+            rows.forEach(row => {
+              row.style.display = '';
+            });
+          } else {
+            rows.forEach(row => {
+              if (row.getAttribute('data-category') === category) {
+                row.style.display = '';
+              } else {
+                row.style.display = 'none';
+              }
+            });
+          }
+        });
+      });
+      
+      // Обработчик сохранения заказа
+      document.getElementById('save-order').addEventListener('click', saveOrderToLocalStorage);
+      
+      // Обработчик отправки заказа
+      document.getElementById('submit-order').addEventListener('click', function() {
+        const name = document.getElementById('order-name').value;
+        const phone = document.getElementById('order-phone').value;
+        const email = document.getElementById('order-email').value;
+        const date = document.getElementById('order-date').value;
+        const time = document.getElementById('order-time').value;
+        const comment = document.getElementById('order-comment').value;
+        
+        // Проверка обязательных полей
+        if (!name || !phone || !email || !date || !time) {
+          showNotification('Ошибка', 'Пожалуйста, заполните все обязательные поля', 'error');
+          return;
+        }
+        
+        // Собираем выбранные анализы
+        const selectedItems = [];
+        document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
+          const itemId = checkbox.getAttribute('data-id');
+          const row = checkbox.closest('tr');
+          const name = row.querySelector('.price-list-item-name').textContent;
+          const price = row.querySelector('.highlight').textContent;
+          
+          selectedItems.push(`${name} (${price})`);
+        });
+        
+        // Генерируем уникальный номер заказа
+        const orderNumber = `BT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+        
+        // Формируем сообщение для Telegram
+        const telegramMessage = `
+          📋 Новый заказ на анализы! [${orderNumber}]
+          
+          👤 Имя: ${name}
+          📱 Телефон: ${phone}
+          ✉️ Email: ${email}
+          📅 Дата: ${date}
+          ⏰ Время: ${time}
+          
+          🧪 Выбранные анализы:
+          ${selectedItems.join('\n')}
+          
+          💬 Комментарий: ${comment || 'Нет комментария'}
+          
+          ⏰ Время заказа: ${new Date().toLocaleString()}
+        `;
+        
+        // Здесь должен быть код для отправки в Telegram
+        console.log('Отправка в Telegram:', telegramMessage);
+        
+        // Здесь должен быть код для отправки на email
+        console.log('Отправка на email ssoalfabeta@gmail.com');
+        
+        // Показываем подтверждение с номером заказа
+        document.getElementById('order-confirmation').classList.add('active');
+        document.querySelector('.confirmation-order-number').textContent = `Номер вашего заказа: ${orderNumber}`;
+        
+        // Сохраняем заказ в localStorage для возможности повторного заказа
+        saveOrderToLocalStorage();
+      });
+      
+      // Обработчик закрытия подтверждения
+      document.getElementById('close-confirmation').addEventListener('click', function() {
+        document.getElementById('order-confirmation').classList.remove('active');
+        
+        // Сбрасываем форму
+        document.getElementById('order-name').value = '';
+        document.getElementById('order-phone').value = '';
+        document.getElementById('order-email').value = '';
+        document.getElementById('order-comment').value = '';
+        document.getElementById('order-date').value = '';
+        document.getElementById('order-time').value = '';
+        
+        // Снимаем выделение с выбранных анализов
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+          checkbox.textContent = '☐';
+          checkbox.classList.remove('checked');
+        });
+        
+        // Скрываем форму заказа
+        document.getElementById('order-summary').style.display = 'none';
+        document.getElementById('order-form').style.display = 'none';
+      });
+      
+      // Инициализация FAQ
+      document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+          this.classList.toggle('active');
+          this.nextElementSibling.classList.toggle('active');
+          this.querySelector('span').textContent = this.classList.contains('active') ? '−' : '+';
+        });
+      });
+      
+      // Устанавливаем минимальную дату для выбора
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('order-date').setAttribute('min', today);
+    });
+    
+    // Функция для отображения уведомления
+    function showNotification(title, message, type) {
+      const notification = document.getElementById('notification');
+      notification.querySelector('.notification-title').textContent = title;
+      notification.querySelector('.notification-message').textContent = message;
+      
+      if (type === 'error') {
+        notification.classList.remove('success');
+        notification.classList.add('error');
+      } else {
+        notification.classList.remove('error');
+        notification.classList.add('success');
+      }
+      
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Tab switching functionality
+    document.querySelectorAll('.category-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.category-tab').forEach(t => {
+          t.classList.remove('active');
+        });
+        
+        // Add active class to clicked tab
+        this.classList.add('active');
+        
+        // Filter services based on category
+        const category = this.getAttribute('data-category');
+        document.querySelectorAll('.service-card').forEach(card => {
+          if (category === 'all' || card.getAttribute('data-category') === category) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+    
+    // Animate elements when they come into view
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.service-card, .testimonial-card, .step').forEach(el => {
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(el);
+    });
+    
+    // Button hover effect with gradient
+    const primaryButtons = document.querySelectorAll('.btn-primary');
+    primaryButtons.forEach(button => {
+      button.addEventListener('mouseenter', function() {
+        this.style.background = 'linear-gradient(135deg, #3A5FEE, #FF4D6B)';
+      });
+      
+      button.addEventListener('mouseleave', function() {
+        this.style.background = 'linear-gradient(135deg, var(--gradient-start), var(--gradient-end))';
+      });
+    });
+    
+    // Floating animation for illustration elements
+    setInterval(() => {
+      const elements = document.querySelectorAll('.illustration-element');
+      elements.forEach((el, index) => {
+        const delay = index * 1000;
+        setTimeout(() => {
+          el.style.animation = 'none';
+          setTimeout(() => {
+            el.style.animation = 'float 6s ease-in-out infinite';
+          }, 10);
+        }, delay);
+      });
+    }, 24000);
+  </script>
+</body>
+</html>
