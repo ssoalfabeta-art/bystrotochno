@@ -87,7 +87,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
             margin-bottom: 40px; 
         }
-        /* Критическое исправление: ограничение высоты прайс-листа */
+        /* КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ограничение высоты прайс-листа */
         .price-list-container {
             max-height: 500px;
             overflow-y: auto;
@@ -381,6 +381,43 @@
             font-size: 1.2rem; 
             margin-bottom: 10px; 
         }
+        .documents-section {
+            padding: 60px 0;
+        }
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .document-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .document-card:hover {
+            transform: translateY(-5px);
+        }
+        .document-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #2b2d42;
+        }
+        .document-form {
+            font-weight: 600;
+            color: #4361ee;
+            margin-bottom: 10px;
+        }
+        .document-where {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .document-price {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #4361ee;
+        }
         footer { 
             background: #2b2d42; 
             color: white; 
@@ -406,6 +443,7 @@
             <a href="#" class="logo">БыстроТочно.рф</a>
             <nav class="nav-menu">
                 <a href="#price-list">Прайс-лист</a>
+                <a href="#documents">Справки</a>
                 <a href="#faq">FAQ</a>
                 <a href="#contacts">Контакты</a>
             </nav>
@@ -442,7 +480,7 @@
             </div>
         </section>
 
-        <section class="price-list-section">
+        <section class="price-list-section" id="price-list">
             <div class="container">
                 <div class="price-list">
                     <table>
@@ -530,6 +568,51 @@
             </div>
         </section>
 
+        <!-- Новый раздел - Справки -->
+        <section class="documents-section" id="documents">
+            <div class="container">
+                <h2 class="section-title">Медицинские справки</h2>
+                <div class="documents-grid">
+                    <div class="document-card">
+                        <h3 class="document-title">Справка для психиатра-нарколога (форма 030/у)</h3>
+                        <div class="document-form">Подтверждение отсутствия учета</div>
+                        <div class="document-where">При устройстве на работу, в учебу</div>
+                        <div class="document-price">2500 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка формы 027/у</h3>
+                        <div class="document-form">Для инвалидов или освобождения от физкультуры</div>
+                        <div class="document-where">Школа, ВУЗ, работа</div>
+                        <div class="document-price">1500 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка о беременности (форма 026/у или 025/у)</h3>
+                        <div class="document-form">Для декретного отпуска</div>
+                        <div class="document-where">Работодатель</div>
+                        <div class="document-price">2000 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка для авиаперелёта (медицинская форма)</h3>
+                        <div class="document-form">Подтверждение возможности летать</div>
+                        <div class="document-where">Авиакомпании</div>
+                        <div class="document-price">1000 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка формы 001-ГС/у</h3>
+                        <div class="document-form">Для санаторно-курортного лечения</div>
+                        <div class="document-where">Санатории, курорты</div>
+                        <div class="document-price">2000 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка об отсутствии контактов с инфекцией</h3>
+                        <div class="document-form">При возврате в детсад после болезни</div>
+                        <div class="document-where">Детские сады</div>
+                        <div class="document-price">1000 ₽</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="how-it-works">
             <div class="container">
                 <h2 class="section-title">Как это работает</h2>
@@ -565,7 +648,7 @@
             </div>
         </div>
 
-        <section class="faq-section">
+        <section class="faq-section" id="faq">
             <div class="container">
                 <h2 class="section-title">Часто задаваемые вопросы</h2>
                 <div class="faq-grid">
@@ -635,6 +718,7 @@
                     <h4 style="margin-bottom: 15px; color: white;">Быстрые ссылки</h4>
                     <ul style="list-style: none;">
                         <li style="margin-bottom: 8px;"><a href="#price-list" style="color: #ddd; text-decoration: none;">Прайс-лист</a></li>
+                        <li style="margin-bottom: 8px;"><a href="#documents" style="color: #ddd; text-decoration: none;">Справки</a></li>
                         <li style="margin-bottom: 8px;"><a href="#faq" style="color: #ddd; text-decoration: none;">FAQ</a></li>
                         <li style="margin-bottom: 8px;"><a href="#contacts" style="color: #ddd; text-decoration: none;">Контакты</a></li>
                     </ul>
@@ -688,13 +772,15 @@
                     text: message,
                     parse_mode: 'HTML'
                 })
-            }).then(response => {
+            })
+            .then(response => {
                 if (response.ok) {
                     console.log('Сообщение успешно отправлено в Telegram');
                 } else {
                     console.error('Ошибка при отправке сообщения в Telegram');
                 }
-            }).catch(error => {
+            })
+            .catch(error => {
                 console.error('Ошибка:', error);
             });
         }
@@ -730,7 +816,11 @@
                 'аллергены домашних животных': 'allergy',
                 'аллергены пыльцы': 'allergy',
                 'аллергены грибов': 'allergy',
-                'аллергены клещей': 'allergy'
+                'аллергены клещей': 'allergy',
+                'аллергология': 'allergy',
+                'токсикология': 'tox',
+                'кровь,моча': 'blood',
+                'кровь,моча,мазок': 'blood'
             };
             
             // Критическое исправление: правильное отображение названий категорий
@@ -799,7 +889,7 @@
             document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
                 const itemId = checkbox.getAttribute('data-id');
                 const row = checkbox.closest('tr');
-                const name = row.querySelector('.price-list-item-name').textContent;
+                const name = row.querySelector('.price-list-item-name')?.textContent || '';
                 const price = parseInt(row.getAttribute('data-price'));
                 selectedItems.push({ id: itemId, name, price });
             });
@@ -933,7 +1023,7 @@
             document.querySelectorAll('.checkbox.checked').forEach(checkbox => {
                 const itemId = checkbox.getAttribute('data-id');
                 const row = checkbox.closest('tr');
-                const name = row.querySelector('.price-list-item-name').textContent;
+                const name = row.querySelector('.price-list-item-name')?.textContent || '';
                 const price = parseInt(row.getAttribute('data-price'));
                 selectedItems.push({ id: itemId, name, price });
             });
@@ -1068,7 +1158,7 @@
                 });
             });
             
-            // Критическое исправление: работающий обработчик отправки заказа
+            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: работающий обработчик отправки заказа
             const submitOrderBtn = document.getElementById('submit-order');
             if (submitOrderBtn) {
                 submitOrderBtn.addEventListener('click', function() {
@@ -1122,7 +1212,7 @@ ${selectedItems.join('\n')}
                     // Отправляем сообщение в Telegram
                     sendToTelegram(telegramMessage);
                     
-                    // Критическое исправление: отправка формы через AJAX с правильной обработкой
+                    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: отправка формы через AJAX с правильной обработкой
                     const formData = new FormData(document.getElementById('order-form'));
                     const formObject = {};
                     
@@ -1184,18 +1274,27 @@ ${selectedItems.join('\n')}
                 document.getElementById('order-form').style.display = 'none';
             });
             
-            // Инициализация FAQ
+            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: работающий обработчик для FAQ
             document.querySelectorAll('.faq-question').forEach(question => {
                 question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector('span');
+                    
                     this.classList.toggle('active');
-                    this.nextElementSibling.classList.toggle('active');
-                    this.querySelector('span').textContent = this.classList.contains('active') ? '−' : '+';
+                    answer.classList.toggle('active');
+                    
+                    if (icon) {
+                        icon.textContent = this.classList.contains('active') ? '−' : '+';
+                    }
                 });
             });
             
             // Устанавливаем минимальную дату для выбора
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('order-date')?.setAttribute('min', today);
+            const orderDate = document.getElementById('order-date');
+            if (orderDate) {
+                orderDate.setAttribute('min', today);
+            }
         });
     </script>
 </body>
