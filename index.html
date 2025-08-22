@@ -8,431 +8,991 @@
     <meta name="description" content="Сдай анализы за 10 минут. Никаких очередей, только ты, пипетка и свобода." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #4cc9f0;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4caf50;
+            --danger: #e63946;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --border-radius: 12px;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s ease;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
         body { 
             font-family: 'Inter', sans-serif; 
             line-height: 1.6; 
             color: #333; 
             background-color: #f8f9fa; 
             padding-top: 70px; /* Отступ для липкого меню */
+            scroll-behavior: smooth;
         }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+        
         .container { 
             width: 100%; 
             max-width: 1200px; 
             margin: 0 auto; 
             padding: 0 20px; 
         }
+        
         .sticky-header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-sm);
             z-index: 1000;
-            padding: 10px 0;
+            padding: 12px 0;
+            transition: var(--transition);
         }
+        
+        .sticky-header.scrolled {
+            padding: 8px 0;
+            box-shadow: var(--shadow);
+        }
+        
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 700;
-            color: #2b2d42;
+            color: var(--primary);
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
         }
+        
+        .logo:hover {
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .logo i {
+            color: var(--accent);
+        }
+        
         .nav-menu {
             display: flex;
-            gap: 20px;
+            gap: 24px;
+            list-style: none;
         }
+        
         .nav-menu a {
-            color: #4361ee;
+            color: var(--dark);
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.3s;
+            transition: var(--transition);
+            position: relative;
+            padding: 4px 0;
         }
+        
+        .nav-menu a:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+        
         .nav-menu a:hover {
-            color: #3a56d4;
+            color: var(--primary);
         }
+        
+        .nav-menu a:hover:after {
+            width: 100%;
+        }
+        
         .btn { 
             display: inline-block; 
-            background: #4361ee; 
+            background: var(--primary); 
             color: white; 
             border: none; 
-            padding: 12px 24px; 
-            border-radius: 8px; 
+            padding: 12px 28px; 
+            border-radius: var(--border-radius); 
             cursor: pointer; 
             font-weight: 500; 
-            transition: all 0.3s; 
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
+        
         .btn:hover { 
-            background: #3a56d4; 
-            transform: translateY(-2px); 
+            background: var(--primary-dark); 
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
         }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(100, 100);
+                opacity: 0;
+            }
+        }
+        
         .section-title { 
             text-align: center; 
             margin-bottom: 40px; 
-            font-size: 2.2rem; 
-            color: #2b2d42; 
+            font-size: 2.5rem; 
+            color: var(--dark);
+            position: relative;
         }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
         .price-list { 
             background: white; 
-            border-radius: 12px; 
+            border-radius: var(--border-radius); 
             overflow: hidden; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            box-shadow: var(--shadow); 
             margin-bottom: 40px; 
+            transition: var(--transition);
         }
-        /* КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ограничение высоты прайс-листа */
+        
+        .price-list:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+        
+        /* Ограничение высоты прайс-листа */
         .price-list-container {
             max-height: 500px;
             overflow-y: auto;
-            border-radius: 0 0 12px 12px;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
         }
+        
+        /* Стилизация скроллбара */
+        .price-list-container::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .price-list-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+        
+        .price-list-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 5px;
+        }
+        
+        .price-list-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
         table { 
             width: 100%; 
             border-collapse: collapse; 
         }
+        
         th { 
-            background: #4361ee; 
+            background: var(--primary); 
             color: white; 
             padding: 16px; 
             text-align: left; 
             position: sticky;
             top: 0;
             z-index: 10;
+            transition: var(--transition);
         }
+        
+        th:hover {
+            background: var(--primary-dark);
+        }
+        
         td { 
             padding: 16px; 
             border-bottom: 1px solid #eee; 
+            transition: var(--transition);
         }
+        
+        tr:hover td:not(.category-header) {
+            background: #f8f9ff;
+        }
+        
         tr:last-child td { 
             border-bottom: none; 
         }
+        
         .category-header { 
             background: #f1f5ff; 
             font-weight: 600; 
             padding: 12px 16px; 
             text-align: left; 
+            font-size: 1.1rem;
+            color: var(--primary);
+            transition: var(--transition);
         }
+        
         .checkbox { 
             cursor: pointer; 
             font-size: 1.2rem; 
+            transition: var(--transition);
+            user-select: none;
         }
+        
+        .checkbox:hover {
+            transform: scale(1.1);
+        }
+        
         .highlight { 
             font-weight: 600; 
-            color: #4361ee; 
+            color: var(--primary); 
         }
+        
         .price-list-loading, .price-list-error, .price-list-empty { 
             text-align: center; 
             padding: 30px; 
-            color: #6c757d; 
+            color: var(--gray); 
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
+        .price-list-loading i {
+            margin-right: 10px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .order-summary { 
             background: white; 
-            border-radius: 12px; 
-            padding: 20px; 
+            border-radius: var(--border-radius); 
+            padding: 25px; 
             margin-top: 20px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            box-shadow: var(--shadow); 
+            transition: var(--transition);
         }
+        
+        .order-summary:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
         .order-item { 
             display: flex; 
             justify-content: space-between; 
-            padding: 10px 0; 
+            padding: 12px 0; 
             border-bottom: 1px solid #eee; 
+            transition: var(--transition);
         }
+        
+        .order-item:hover {
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+        
         .order-total { 
             display: flex; 
             justify-content: space-between; 
             font-weight: 700; 
             margin-top: 15px; 
-            font-size: 1.2rem; 
+            font-size: 1.3rem; 
+            padding-top: 15px;
+            border-top: 2px dashed #eee;
         }
+        
         #order-form { 
             margin-top: 20px; 
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
         }
+        
         .form-group { 
-            margin-bottom: 15px; 
+            margin-bottom: 20px; 
         }
+        
         label { 
             display: block; 
-            margin-bottom: 5px; 
+            margin-bottom: 8px; 
             font-weight: 500; 
+            color: var(--dark);
+            transition: var(--transition);
         }
+        
         .form-control { 
             width: 100%; 
-            padding: 10px; 
+            padding: 12px 16px; 
             border: 1px solid #ddd; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             font-size: 1rem; 
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
         }
+        
+        .form-control:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
         .form-row { 
             display: flex; 
             gap: 15px; 
         }
+        
         .order-confirmation { 
             position: fixed; 
             top: 0; 
             left: 0; 
             width: 100%; 
             height: 100%; 
-            background: rgba(0,0,0,0.5); 
+            background: rgba(0,0,0,0.7); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             z-index: 1000; 
             opacity: 0; 
             visibility: hidden; 
-            transition: all 0.3s; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
         .order-confirmation.active { 
             opacity: 1; 
             visibility: visible; 
         }
+        
         .order-confirmation-content { 
             background: white; 
-            border-radius: 12px; 
-            padding: 30px; 
+            border-radius: var(--border-radius); 
+            padding: 35px; 
             max-width: 500px; 
             width: 100%; 
             text-align: center; 
             position: relative; 
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
+        .order-confirmation.active .order-confirmation-content {
+            transform: scale(1);
+        }
+        
         .confirmation-icon { 
-            font-size: 3rem; 
-            margin-bottom: 20px; 
+            font-size: 3.5rem; 
+            margin-bottom: 25px; 
+            color: var(--success);
+            animation: pulse 2s infinite;
         }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
         .confirmation-order-number { 
             font-weight: 600; 
-            margin: 10px 0; 
-            color: #4361ee; 
+            margin: 15px 0; 
+            color: var(--primary); 
+            font-size: 1.2rem;
+            word-break: break-all;
         }
+        
         .confirmation-title { 
-            font-size: 1.5rem; 
-            margin: 20px 0; 
+            font-size: 1.7rem; 
+            margin: 25px 0; 
+            color: var(--dark);
         }
+        
         .confirmation-btn { 
-            background: #4361ee; 
+            background: var(--primary); 
             color: white; 
             border: none; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
+            padding: 12px 30px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            font-size: 1rem; 
+            font-size: 1.1rem; 
+            transition: var(--transition);
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
         }
+        
+        .confirmation-btn:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+        
         .notification { 
             position: fixed; 
             bottom: 20px; 
             right: 20px; 
             background: white; 
-            border-left: 4px solid #4361ee; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            padding: 15px 20px; 
-            border-radius: 6px; 
+            border-left: 4px solid var(--primary); 
+            box-shadow: var(--shadow); 
+            padding: 18px 25px; 
+            border-radius: 8px; 
             display: flex; 
-            gap: 10px; 
+            gap: 12px; 
             z-index: 1000; 
             transform: translateX(200%); 
-            transition: transform 0.3s; 
+            transition: transform 0.4s ease;
+            max-width: 350px;
         }
+        
         .notification.show { 
             transform: translateX(0); 
         }
+        
         .notification-icon { 
-            font-size: 1.5rem; 
+            font-size: 1.7rem; 
+            color: var(--primary);
         }
+        
         .notification-content { }
+        
         .notification-title { 
             font-weight: 600; 
             margin-bottom: 5px; 
+            color: var(--dark);
         }
+        
         .notification.error { 
-            border-left-color: #e63946; 
+            border-left-color: var(--danger); 
         }
+        
+        .notification.error .notification-icon {
+            color: var(--danger);
+        }
+        
         .order-saved { 
             position: fixed; 
             bottom: 20px; 
             right: 20px; 
             background: white; 
-            border-left: 4px solid #4caf50; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            padding: 15px 20px; 
-            border-radius: 6px; 
+            border-left: 4px solid var(--success); 
+            box-shadow: var(--shadow); 
+            padding: 18px 25px; 
+            border-radius: 8px; 
             display: flex; 
-            gap: 10px; 
+            gap: 12px; 
             z-index: 1000; 
             transform: translateX(200%); 
-            transition: transform 0.3s; 
+            transition: transform 0.4s ease;
+            max-width: 350px;
         }
+        
         .order-saved.show { 
             transform: translateX(0); 
         }
+        
+        .order-saved-icon { 
+            font-size: 1.7rem; 
+            color: var(--success);
+        }
+        
         .faq-section { 
             background: #f8f9fa; 
-            padding: 60px 0; 
+            padding: 80px 0; 
         }
+        
         .faq-item { 
-            margin-bottom: 15px; 
+            margin-bottom: 20px; 
             background: white; 
-            border-radius: 8px; 
+            border-radius: var(--border-radius); 
             overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            box-shadow: var(--shadow-sm); 
+            transition: var(--transition);
+            border: 1px solid #eee;
         }
+        
+        .faq-item:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-3px);
+        }
+        
         .faq-question { 
-            padding: 15px 20px; 
-            background: #f1f5ff; 
+            padding: 18px 25px; 
+            background: #f9fafc; 
             font-weight: 500; 
             cursor: pointer; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
+            transition: var(--transition);
+            color: var(--dark);
         }
+        
         .faq-question.active { 
-            background: #4361ee; 
+            background: var(--primary); 
             color: white; 
         }
+        
         .faq-answer { 
-            padding: 0 20px; 
+            padding: 0 25px; 
             max-height: 0; 
             overflow: hidden; 
-            transition: all 0.3s; 
+            transition: all 0.4s cubic-bezier(0.65, 0, 0.35, 1);
         }
+        
         .faq-answer.active { 
-            padding: 20px; 
+            padding: 20px 25px; 
             max-height: 500px; 
         }
+        
         .contact-section { 
-            padding: 60px 0; 
+            padding: 80px 0; 
         }
+        
         .contact-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
             gap: 30px; 
         }
+        
         .map-content { 
-            border-radius: 12px; 
+            border-radius: var(--border-radius); 
             overflow: hidden; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            box-shadow: var(--shadow); 
+            height: 350px;
         }
+        
         .illustration { 
             display: flex; 
             flex-wrap: wrap; 
-            gap: 20px; 
+            gap: 25px; 
             margin-top: 30px; 
             justify-content: center; 
         }
+        
         .illustration-element { 
-            font-size: 2.5rem; 
+            font-size: 2.8rem; 
+            transition: var(--transition);
+            cursor: default;
         }
+        
+        .illustration-element:hover {
+            transform: scale(1.2);
+            color: var(--primary);
+        }
+        
         .categories-section { 
-            padding: 60px 0; 
+            padding: 70px 0; 
         }
+        
         .categories-tabs { 
             display: flex; 
-            gap: 10px; 
-            margin-bottom: 20px; 
+            gap: 12px; 
+            margin-bottom: 25px; 
             flex-wrap: wrap; 
+            justify-content: center;
+            overflow-x: auto;
+            padding-bottom: 8px;
         }
+        
         .category-tab { 
-            padding: 10px 20px; 
+            padding: 12px 22px; 
             background: #f1f5ff; 
-            border-radius: 8px; 
+            border-radius: 30px; 
             cursor: pointer; 
-            transition: all 0.3s; 
+            transition: var(--transition);
+            white-space: nowrap;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
         }
+        
         .category-tab.active { 
-            background: #4361ee; 
+            background: var(--primary); 
             color: white; 
+            box-shadow: var(--shadow);
+            transform: translateY(-3px);
         }
+        
+        .category-tab:hover:not(.active) {
+            background: #e6edff;
+            transform: translateY(-2px);
+        }
+        
         .how-it-works { 
-            padding: 60px 0; 
+            padding: 80px 0; 
             background: #f8f9fa; 
         }
+        
         .steps { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
             gap: 30px; 
             margin-top: 40px; 
         }
+        
         .step { 
             text-align: center; 
-            padding: 20px; 
+            padding: 25px; 
             background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--shadow-sm); 
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .step:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-8px);
+        }
+        
+        .step:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: var(--transition);
+        }
+        
+        .step:hover:after {
+            transform: scaleX(1);
+        }
+        
         .step-number { 
             display: inline-flex; 
             align-items: center; 
             justify-content: center; 
-            width: 40px; 
-            height: 40px; 
-            background: #4361ee; 
+            width: 50px; 
+            height: 50px; 
+            background: var(--primary); 
             color: white; 
             border-radius: 50%; 
-            font-weight: 600; 
-            margin-bottom: 15px; 
+            font-weight: 700; 
+            margin-bottom: 20px; 
+            font-size: 1.3rem;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
         }
+        
+        .step:hover .step-number {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+        
         .step-title { 
-            font-size: 1.2rem; 
-            margin-bottom: 10px; 
+            font-size: 1.3rem; 
+            margin-bottom: 12px; 
+            color: var(--dark);
         }
+        
+        .step-desc {
+            color: var(--gray);
+        }
+        
         .documents-section {
-            padding: 60px 0;
+            padding: 80px 0;
         }
+        
         .documents-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            gap: 25px;
         }
+        
         .document-card {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .document-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: var(--transition);
+        }
+        
         .document-card:hover {
-            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            transform: translateY(-8px);
         }
+        
+        .document-card:hover:before {
+            transform: scaleY(1);
+        }
+        
         .document-title {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: #2b2d42;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--dark);
+            transition: var(--transition);
         }
+        
+        .document-card:hover .document-title {
+            color: var(--primary);
+        }
+        
         .document-form {
             font-weight: 600;
-            color: #4361ee;
+            color: var(--primary);
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        
+        .document-form:before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        
         .document-where {
-            color: #6c757d;
-            margin-bottom: 10px;
+            color: var(--gray);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        
+        .document-where:before {
+            content: '\f3c5';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+        }
+        
         .document-price {
             font-weight: 700;
-            font-size: 1.2rem;
-            color: #4361ee;
+            font-size: 1.4rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        
+        .document-price:before {
+            content: '\f879';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+        }
+        
         footer { 
-            background: #2b2d42; 
+            background: var(--dark); 
             color: white; 
-            padding: 40px 0 20px; 
+            padding: 60px 0 30px; 
         }
+        
         .footer-inner { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
             gap: 30px; 
-            margin-bottom: 30px; 
+            margin-bottom: 40px; 
         }
+        
         .footer-brand { 
-            font-size: 1.5rem; 
+            font-size: 1.7rem; 
             font-weight: 700; 
             margin-bottom: 15px; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-brand i {
+            color: var(--accent);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .footer-contact p {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            color: #aaa;
+            border-top: 1px solid #444;
+            margin-top: 30px;
+        }
+        
+        /* Анимации при прокрутке */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .sticky-header {
+                padding: 10px 0;
+            }
+            
+            .price-list-container {
+                max-height: 400px;
+            }
+            
+            .order-confirmation-content {
+                padding: 25px;
+            }
+            
+            .illustration-element {
+                font-size: 2.2rem;
+            }
+            
+            .categories-tabs {
+                gap: 8px;
+            }
+            
+            .category-tab {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 1.7rem;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+            
+            .price-list-container {
+                max-height: 350px;
+            }
+            
+            .document-card {
+                padding: 20px;
+            }
+            
+            .document-title {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -440,7 +1000,10 @@
     <!-- Sticky Header -->
     <header class="sticky-header">
         <div class="container header-container">
-            <a href="#" class="logo">БыстроТочно.рф</a>
+            <a href="#" class="logo">
+                <i class="fas fa-vial"></i>
+                БыстроТочно.рф
+            </a>
             <nav class="nav-menu">
                 <a href="#price-list">Прайс-лист</a>
                 <a href="#documents">Справки</a>
@@ -452,19 +1015,19 @@
 
     <main>
         <section class="hero">
-            <div class="container" style="text-align: center; padding: 40px 0;">
-                <h2 style="font-size: 2.5rem; margin-bottom: 20px; color: #2b2d42;">Анализы без паники</h2>
-                <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto 30px; color: #6c757d;">Сдай анализы за 10 минут. Никаких очередей, только ты, пипетка и свобода.</p>
+            <div class="container" style="text-align: center; padding: 50px 0;">
+                <h1 style="font-size: 2.8rem; margin-bottom: 20px; color: var(--dark);">Анализы без паники</h1>
+                <p style="font-size: 1.3rem; max-width: 750px; margin: 0 auto 35px; color: var(--gray);">Сдай анализы за 10 минут. Никаких очередей, только ты, пипетка и свобода.</p>
                 <div class="illustration">
-                    <div class="illustration-element">💉</div>
-                    <div class="illustration-element">🩸</div>
-                    <div class="illustration-element">🧬</div>
-                    <div class="illustration-element">🩺</div>
+                    <div class="illustration-element" title="Исследования крови"><i class="fas fa-vial"></i></div>
+                    <div class="illustration-element" title="Исследования мочи"><i class="fas fa-flask"></i></div>
+                    <div class="illustration-element" title="Гормональные анализы"><i class="fas fa-dna"></i></div>
+                    <div class="illustration-element" title="Консультации"><i class="fas fa-stethoscope"></i></div>
                 </div>
             </div>
         </section>
 
-        <section class="categories-section">
+        <section class="categories-section animate-on-scroll">
             <div class="container">
                 <h2 class="section-title">Что мы делаем</h2>
                 <div class="categories-tabs">
@@ -476,11 +1039,12 @@
                     <div class="category-tab howto" data-category="howto"><span>Консультации</span></div>
                     <div class="category-tab allergy" data-category="allergy"><span>Аллергология</span></div>
                     <div class="category-tab tox" data-category="tox"><span>Токсикология</span></div>
+                    <div class="category-tab coag" data-category="coag"><span>Коагулология</span></div>
                 </div>
             </div>
         </section>
 
-        <section class="price-list-section" id="price-list">
+        <section class="price-list-section animate-on-scroll" id="price-list">
             <div class="container">
                 <div class="price-list">
                     <table>
@@ -500,7 +1064,7 @@
                         <tbody id="order-list-body">
                             <tr>
                                 <td colspan="5" class="price-list-loading">
-                                    <div>Загрузка данных из Excel-файла...</div>
+                                    <i class="fas fa-spinner"></i> Загрузка данных из Excel-файла...
                                 </td>
                             </tr>
                         </tbody>
@@ -508,7 +1072,7 @@
                 </div>
 
                 <div class="order-summary" id="order-summary" style="display: none;">
-                    <h3 style="margin-bottom: 15px;">Ваш заказ</h3>
+                    <h3 style="margin-bottom: 20px; font-size: 1.6rem;">Ваш заказ</h3>
                     <div id="order-items-list"></div>
                     <div class="order-total">
                         <span>Итого:</span>
@@ -569,10 +1133,46 @@
         </section>
 
         <!-- Новый раздел - Справки -->
-        <section class="documents-section" id="documents">
+        <section class="documents-section animate-on-scroll" id="documents">
             <div class="container">
                 <h2 class="section-title">Медицинские справки</h2>
                 <div class="documents-grid">
+                    <div class="document-card">
+                        <h3 class="document-title">Справка для ГИБДД (форма 003-В/у)</h3>
+                        <div class="document-form">Оформление/продление водительских прав</div>
+                        <div class="document-where">МРЭО ГИБДД</div>
+                        <div class="document-price">2500 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка формы 086/у</h3>
+                        <div class="document-form">При устройстве на работу или учёбу (студентам)</div>
+                        <div class="document-where">Работодатель, ВУЗ</div>
+                        <div class="document-price">2500 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка формы 026/у</h3>
+                        <div class="document-form">Для детского сада или школы (о здоровье ребёнка)</div>
+                        <div class="document-where">Детские учреждения</div>
+                        <div class="document-price">2000 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка для бассейна (форма 078/у)</h3>
+                        <div class="document-form">Подтверждение отсутствия инфекций</div>
+                        <div class="document-where">Спортивные комплексы</div>
+                        <div class="document-price">1000 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка формы 095/у</h3>
+                        <div class="document-form">Для поступления в колледж или техникум</div>
+                        <div class="document-where">Учебные заведения</div>
+                        <div class="document-price">2000 ₽</div>
+                    </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка о состоянии здоровья (произвольная форма)</h3>
+                        <div class="document-form">Для суда, опеки, МВД и др.</div>
+                        <div class="document-where">Госорганы</div>
+                        <div class="document-price">1500 ₽</div>
+                    </div>
                     <div class="document-card">
                         <h3 class="document-title">Справка для психиатра-нарколога (форма 030/у)</h3>
                         <div class="document-form">Подтверждение отсутствия учета</div>
@@ -609,11 +1209,17 @@
                         <div class="document-where">Детские сады</div>
                         <div class="document-price">1000 ₽</div>
                     </div>
+                    <div class="document-card">
+                        <h3 class="document-title">Справка для охоты/рыбалки</h3>
+                        <div class="document-form">Подтверждение отсутствия психиатрического учета</div>
+                        <div class="document-where">Охотминимум, лицензии</div>
+                        <div class="document-price">3000 ₽</div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="how-it-works">
+        <section class="how-it-works animate-on-scroll">
             <div class="container">
                 <h2 class="section-title">Как это работает</h2>
                 <div class="steps">
@@ -639,7 +1245,9 @@
         <!-- Order Confirmation Modal -->
         <div class="order-confirmation" id="order-confirmation">
             <div class="order-confirmation-content">
-                <div class="confirmation-icon">✅</div>
+                <div class="confirmation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
                 <div class="confirmation-order-number">Номер вашего заказа: #BT-2023-789456</div>
                 <div class="confirmation-order-details">Сохраните этот номер для отслеживания заказа</div>
                 <h3 class="confirmation-title">Заказ оформлен!</h3>
@@ -648,7 +1256,7 @@
             </div>
         </div>
 
-        <section class="faq-section" id="faq">
+        <section class="faq-section animate-on-scroll" id="faq">
             <div class="container">
                 <h2 class="section-title">Часто задаваемые вопросы</h2>
                 <div class="faq-grid">
@@ -684,20 +1292,36 @@
                             <p>Да, мы предоставляем возможность сдать анализы анонимно. В этом случае результаты будут доступны только через Telegram-бот с использованием уникального кода, который вы получите после сдачи анализов.</p>
                         </div>
                     </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Какие документы нужны для сдачи анализов?<span>+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Для сдачи анализов необходим паспорт. Если вы сдаете анализы по направлению врача, рекомендуется взять с собой направление. Для детей до 14 лет необходимо присутствие родителя или законного представителя с паспортом и свидетельством о рождении ребенка.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Можно ли оплатить анализ после получения результатов?<span>+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Оплата анализов производится перед сдачей биоматериала. Мы принимаем оплату наличными, картой, а также через онлайн-банки. К сожалению, оплата после получения результатов невозможна.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="contact-section" id="contacts">
+        <section class="contact-section animate-on-scroll" id="contacts">
             <div class="container">
                 <h2 class="section-title">Контакты</h2>
                 <div class="contact-grid">
                     <div>
-                        <h3 style="margin-bottom: 15px; color: #2b2d42;">Наши контакты</h3>
-                        <p style="margin-bottom: 10px;">Телефон: +7 (495) 123-45-67</p>
-                        <p style="margin-bottom: 10px;">Email: info@bystrotchno.ru</p>
-                        <p style="margin-bottom: 10px;">Время работы: Пн-Сб с 8:00 до 20:00</p>
-                        <p style="margin-bottom: 10px;">Наш адрес: Москва, ул. Новочеремушкинская, 16</p>
+                        <h3 style="margin-bottom: 15px; color: var(--dark);">Наши контакты</h3>
+                        <p style="margin-bottom: 10px;"><i class="fas fa-phone" style="margin-right: 8px; color: var(--primary);"></i> Телефон: +7 (495) 123-45-67</p>
+                        <p style="margin-bottom: 10px;"><i class="fas fa-envelope" style="margin-right: 8px; color: var(--primary);"></i> Email: info@bystrotchno.ru</p>
+                        <p style="margin-bottom: 10px;"><i class="fas fa-clock" style="margin-right: 8px; color: var(--primary);"></i> Время работы: Пн-Сб с 8:00 до 20:00</p>
+                        <p style="margin-bottom: 10px;"><i class="fas fa-map-marker-alt" style="margin-right: 8px; color: var(--primary);"></i> Наш адрес: Москва, ул. Новочеремушкинская, 16</p>
                     </div>
                     <div class="map-content">
                         <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A4ba2ebbac43ab3a48d8bf349c5f75cd489044e6765280bc5440457e5869da030&amp;width=100%25&amp;height=450&amp;lang=ru_RU&amp;scroll=true"></script>
@@ -711,26 +1335,29 @@
         <div class="container">
             <div class="footer-inner">
                 <div>
-                    <div class="footer-brand">БыстроТочно.рф</div>
+                    <div class="footer-brand">
+                        <i class="fas fa-vial"></i>
+                        БыстроТочно.рф
+                    </div>
                     <p>Анализы без паники. Сдай анализы за 10 минут.</p>
                 </div>
                 <div>
                     <h4 style="margin-bottom: 15px; color: white;">Быстрые ссылки</h4>
-                    <ul style="list-style: none;">
-                        <li style="margin-bottom: 8px;"><a href="#price-list" style="color: #ddd; text-decoration: none;">Прайс-лист</a></li>
-                        <li style="margin-bottom: 8px;"><a href="#documents" style="color: #ddd; text-decoration: none;">Справки</a></li>
-                        <li style="margin-bottom: 8px;"><a href="#faq" style="color: #ddd; text-decoration: none;">FAQ</a></li>
-                        <li style="margin-bottom: 8px;"><a href="#contacts" style="color: #ddd; text-decoration: none;">Контакты</a></li>
+                    <ul class="footer-links">
+                        <li><a href="#price-list"><i class="fas fa-chevron-right"></i> Прайс-лист</a></li>
+                        <li><a href="#documents"><i class="fas fa-chevron-right"></i> Справки</a></li>
+                        <li><a href="#faq"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                        <li><a href="#contacts"><i class="fas fa-chevron-right"></i> Контакты</a></li>
                     </ul>
                 </div>
-                <div>
+                <div class="footer-contact">
                     <h4 style="margin-bottom: 15px; color: white;">Контакты</h4>
-                    <p style="margin-bottom: 8px; color: #ddd;">+7 (495) 123-45-67</p>
-                    <p style="margin-bottom: 8px; color: #ddd;">info@bystrotchno.ru</p>
-                    <p style="margin-bottom: 8px; color: #ddd;">Москва, ул. Новочеремушкинская, 16</p>
+                    <p><i class="fas fa-phone"></i> +7 (495) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@bystrotchno.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Новочеремушкинская, 16</p>
                 </div>
             </div>
-            <div style="text-align: center; padding-top: 20px; color: #aaa; border-top: 1px solid #444; margin-top: 20px;">
+            <div class="footer-bottom">
                 <p>© 2023 БыстроТочно.рф — Все права защищены</p>
             </div>
         </div>
@@ -738,14 +1365,14 @@
 
     <!-- Notification elements -->
     <div class="notification" id="notification">
-        <div class="notification-icon">🔔</div>
+        <div class="notification-icon"><i class="fas fa-bell"></i></div>
         <div class="notification-content">
             <div class="notification-title">Уведомление</div>
             <div class="notification-message">Сообщение будет отображено здесь</div>
         </div>
     </div>
     <div class="order-saved" id="order-saved">
-        <div class="order-saved-icon">💾</div>
+        <div class="order-saved-icon"><i class="fas fa-save"></i></div>
         <div class="order-saved-content">
             <div class="order-saved-title">Заказ сохранен</div>
             <div class="order-saved-message">Ваш заказ сохранен и будет доступен при следующем посещении сайта</div>
@@ -795,15 +1422,22 @@
             
             let html = '';
             let currentCategory = null;
-            // Критическое исправление: расширенный маппинг категорий для корректной обработки данных из Excel
+            // Маппинг категорий для корректной обработки данных из Excel
             const categoriesMap = {
+                'общеклинические исследования': 'blood',
+                'коагулологические исследования': 'coag',
+                'аллергология': 'allergy',
+                'аллергены домашних животных': 'allergy',
+                'аллергены пыльцы': 'allergy',
+                'аллергены грибов': 'allergy',
+                'аллергены клещей': 'allergy',
+                'пищевые аллергены': 'allergy',
+                'токсикология': 'tox',
                 'кровь': 'blood',
                 'моча': 'urine',
                 'гормоны': 'hormones',
                 'антигены': 'antigens',
                 'консультации': 'howto',
-                'аллергология': 'allergy',
-                'токсикология': 'tox',
                 'биохимические анализы': 'blood',
                 'иммунологические анализы': 'blood',
                 'онкомаркёры': 'blood',
@@ -812,18 +1446,11 @@
                 'общеклинические исследования': 'blood',
                 'патологические исследования': 'blood',
                 'молекулярная диагностика (эли-тесты)': 'blood',
-                'пищевые аллергены': 'allergy',
-                'аллергены домашних животных': 'allergy',
-                'аллергены пыльцы': 'allergy',
-                'аллергены грибов': 'allergy',
-                'аллергены клещей': 'allergy',
-                'аллергология': 'allergy',
-                'токсикология': 'tox',
                 'кровь,моча': 'blood',
                 'кровь,моча,мазок': 'blood'
             };
             
-            // Критическое исправление: правильное отображение названий категорий
+            // Названия категорий
             const categoryNames = {
                 'blood': 'Кровь',
                 'urine': 'Моча',
@@ -832,6 +1459,7 @@
                 'howto': 'Консультации',
                 'allergy': 'Аллергология',
                 'tox': 'Токсикология',
+                'coag': 'Коагулология',
                 'all': 'Все'
             };
             
@@ -850,7 +1478,7 @@
                     html += `<tr class="category-row"><td colspan="5" class="category-header">${categoryNames[categoryKey] || 'Разное'}</td></tr>`;
                 }
                 
-                // Критическое исправление: правильная обработка названия и описания
+                // Правильная обработка названия и описания
                 const normalizedName = item.name
                     .replace(/^[a-z0-9]+\s*/, '') // Удаляем префиксы типа "f251"
                     .replace(/\s*\|.*$/, '')      // Удаляем ненужные символы в конце
@@ -926,12 +1554,10 @@
         // Загрузка данных из Excel-файла
         function loadPriceListFromExcel() {
             const orderListBody = document.getElementById('order-list-body');
-            orderListBody.innerHTML = `<tr><td colspan="5" class="price-list-loading"><div>Загрузка данных из Excel-файла...</div></td></tr>`;
+            orderListBody.innerHTML = `<tr><td colspan="5" class="price-list-loading"><i class="fas fa-spinner"></i> Загрузка данных из Excel-файла...</td></tr>`;
             
-            // Критическое исправление: обработка CORS для GitHub Pages
-            const excelUrl = 'yandex.price.xlsx';
-            
-            fetch(excelUrl)
+            // Загружаем файл Excel
+            fetch('bion.xlsx')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Ошибка загрузки файла');
@@ -948,19 +1574,41 @@
                     const priceList = [];
                     let id = 1;
                     
+                    // Найдем индекс столбца "Наименование теста/услуги" и "Цена"
+                    const headerRow = jsonData[0];
+                    let nameIndex = -1;
+                    let categoryIndex = -1;
+                    let priceIndex = -1;
+                    
+                    for (let i = 0; i < headerRow.length; i++) {
+                        const header = String(headerRow[i]).toLowerCase();
+                        if (header.includes('наименование') || header.includes('теста') || header.includes('услуги')) {
+                            nameIndex = i;
+                        } else if (header.includes('категория') || header.includes('группа')) {
+                            categoryIndex = i;
+                        } else if (header.includes('цена') || header.includes('стоимость')) {
+                            priceIndex = i;
+                        }
+                    }
+                    
+                    // Если не нашли по заголовкам, используем стандартные индексы
+                    if (nameIndex === -1) nameIndex = 1;
+                    if (categoryIndex === -1) categoryIndex = 2;
+                    if (priceIndex === -1) priceIndex = 4;
+                    
                     for (let i = 1; i < jsonData.length; i++) {
                         const row = jsonData[i];
-                        if (row && row.length >= 4) {
-                            // Критическое исправление: правильное определение столбцов
-                            let name = row[0];
-                            let category = row[1] || 'Разное';
-                            let price = row[3];
+                        if (row && row.length > Math.max(nameIndex, categoryIndex, priceIndex)) {
+                            let name = row[nameIndex];
+                            let category = row[categoryIndex] || 'Разное';
+                            let price = row[priceIndex];
                             
                             // Проверяем, что данные корректны
                             if (name && category && price !== undefined) {
                                 // Очистка и нормализация данных
                                 name = String(name).trim();
                                 category = String(category).trim().toLowerCase();
+                                price = String(price).replace(/\D/g, '');
                                 price = parseInt(price);
                                 
                                 // Игнорируем строки без цены или с некорректной ценой
@@ -1007,13 +1655,35 @@
                         {id: 14, name: "ПЦР-тест на ВПЧ", category: "антигены", price: 1299, turnaround: "72 часа"},
                         {id: 15, name: "Консультация терапевта", category: "консультации", price: 899, turnaround: "15 минут"},
                         {id: 16, name: "Сыр Пармезан", category: "аллергология", price: 660, turnaround: "24-48 часов"},
-                        {id: 17, name: "Риск сердечно-сосудистых заболеваний", category: "кровь", price: 2500, turnaround: "48 часов"}
+                        {id: 17, name: "Риск сердечно-сосудистых заболеваний", category: "кровь", price: 2500, turnaround: "48 часов"},
+                        {id: 18, name: "Гомоцистеин", category: "кровь", price: 1700, turnaround: "24 часа"},
+                        {id: 19, name: "CRP ультрачувствительный", category: "кровь", price: 500, turnaround: "24 часа"},
+                        {id: 20, name: "Липидограмма", category: "кровь", price: 770, turnaround: "24 часа"},
+                        {id: 21, name: "Анализ на билирубин", category: "кровь", price: 449, turnaround: "24 часа"},
+                        {id: 22, name: "Креатинин", category: "кровь", price: 349, turnaround: "24 часа"},
+                        {id: 23, name: "Анализ мочи на сахар", category: "моча", price: 299, turnaround: "24 часа"},
+                        {id: 24, name: "Прогестерон", category: "гормоны", price: 699, turnaround: "48 часов"},
+                        {id: 25, name: "ПЦР-тест на хламидии", category: "антигены", price: 1199, turnaround: "48 часов"},
+                        {id: 26, name: "XIIa зависимый фибринолиз", category: "коагулологические исследования", price: 660, turnaround: "24-48 часов"},
+                        {id: 27, name: "3-х стаканная проба", category: "общеклинические исследования", price: 570, turnaround: "24-48 часов"},
+                        {id: 28, name: "Анализ мочи на микобактерии туберкулеза", category: "общеклинические исследования", price: 700, turnaround: "24-48 часов"},
+                        {id: 29, name: "Общий анализ кала (копрограмма)", category: "общеклинические исследования", price: 520, turnaround: "24-48 часов"},
+                        {id: 30, name: "Исследование кала на скрытую кровь", category: "общеклинические исследования", price: 660, turnaround: "24-48 часов"},
+                        {id: 31, name: "f95 Персик", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 32, name: "f219 Молоко козье", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 33, name: "f251 Сыр Пармезан", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 34, name: "w9 Подорожник", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 35, name: "t1 Клён ясенелистый", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 36, name: "d1 Dermatophagoides pteronyssinus", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 37, name: "m1 Penicillium notatum", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 38, name: "e1 Кошка", category: "аллергология", price: 660, turnaround: "4-6 дней"},
+                        {id: 39, name: "f4 Пшеничная мука", category: "аллергология", price: 660, turnaround: "4-6 дней"}
                     ];
                     
                     priceListData = testPriceList;
                     renderPriceList(testPriceList);
                     
-                    orderListBody.innerHTML += `<tr><td colspan="5" class="price-list-error" style="color: #e63946;">Внимание: Используются тестовые данные. Реальные данные будут загружены после настройки сервера.</td></tr>`;
+                    orderListBody.innerHTML += `<tr><td colspan="5" class="price-list-error" style="color: var(--danger);">Внимание: Используются тестовые данные. Реальные данные будут загружены после настройки сервера.</td></tr>`;
                 });
         }
 
@@ -1079,8 +1749,37 @@
             }, 3000);
         }
 
+        // Функция для анимации при прокрутке
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            const windowHeight = window.innerHeight;
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                if (elementPosition < windowHeight - 50) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем обработчик для липкого меню
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('.sticky-header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+                
+                // Анимация при прокрутке
+                animateOnScroll();
+            });
+            
+            // Инициализация анимации для элементов
+            setTimeout(animateOnScroll, 100);
+            
             // Загружаем прайс-лист при загрузке страницы
             loadPriceListFromExcel();
             
@@ -1142,6 +1841,8 @@
                                 showCategory = true;
                             } else if (category === 'tox' && categoryName.includes('токсикология')) {
                                 showCategory = true;
+                            } else if (category === 'coag' && categoryName.includes('коагулолог')) {
+                                showCategory = true;
                             }
                             
                             if (showCategory) {
@@ -1158,7 +1859,7 @@
                 });
             });
             
-            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: работающий обработчик отправки заказа
+            // Обработчик отправки заказа
             const submitOrderBtn = document.getElementById('submit-order');
             if (submitOrderBtn) {
                 submitOrderBtn.addEventListener('click', function() {
@@ -1212,7 +1913,7 @@ ${selectedItems.join('\n')}
                     // Отправляем сообщение в Telegram
                     sendToTelegram(telegramMessage);
                     
-                    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: отправка формы через AJAX с правильной обработкой
+                    // Отправка формы через AJAX
                     const formData = new FormData(document.getElementById('order-form'));
                     const formObject = {};
                     
@@ -1241,7 +1942,7 @@ ${selectedItems.join('\n')}
                         console.error('Ошибка отправки формы:', error);
                         showNotification('Ошибка', 'Не удалось отправить заказ. Попробуйте позже.', 'error');
                         
-                        // Дополнительная отправка через стандартный метод на случай, если AJAX не сработал
+                        // Дополнительная отправка через стандартный метод
                         try {
                             document.getElementById('order-form').submit();
                         } catch (e) {
@@ -1274,7 +1975,7 @@ ${selectedItems.join('\n')}
                 document.getElementById('order-form').style.display = 'none';
             });
             
-            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: работающий обработчик для FAQ
+            // Обработчик для FAQ
             document.querySelectorAll('.faq-question').forEach(question => {
                 question.addEventListener('click', function() {
                     const answer = this.nextElementSibling;
